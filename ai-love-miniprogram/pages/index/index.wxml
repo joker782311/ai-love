@@ -1,0 +1,33 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- 欢迎区域 -->
+  <view class="welcome-section card">
+    <view class="welcome-title">欢迎来到妮妮的恋爱小馆 🏠</view>
+    <view class="welcome-subtitle">记录我们的点点滴滴</view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="feature-grid">
+    <view class="feature-item card" bindtap="goToNotes">
+      <view class="feature-icon">📝</view>
+      <view class="feature-name">笔记</view>
+    </view>
+    <view class="feature-item card" bindtap="goToMessages">
+      <view class="feature-icon">💌</view>
+      <view class="feature-name">留言</view>
+    </view>
+    <view class="feature-item card" bindtap="goToReminders">
+      <view class="feature-icon">⏰</view>
+      <view class="feature-name">提醒</view>
+    </view>
+    <view class="feature-item card" bindtap="goToProfile">
+      <view class="feature-icon">👤</view>
+      <view class="feature-name">我的</view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="footer-tip">
+    <view>妮妮 ❤️ 蛋蛋</view>
+  </view>
+</view>

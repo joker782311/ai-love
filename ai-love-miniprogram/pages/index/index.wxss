@@ -1,0 +1,63 @@
+/* pages/index/index.wxss */
+.container {
+  padding: 20rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF3E0 0%, #FFE4E1 100%);
+}
+
+/* 欢迎区域 */
+.welcome-section {
+  text-align: center;
+  padding: 40rpx 24rpx;
+  margin: 20rpx;
+}
+
+.welcome-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FF6B8A;
+  margin-bottom: 16rpx;
+}
+
+.welcome-subtitle {
+  font-size: 28rpx;
+  color: #888;
+}
+
+/* 功能网格 */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+  padding: 20rpx;
+}
+
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 20rpx;
+  background: white;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 138, 0.2);
+}
+
+.feature-icon {
+  font-size: 64rpx;
+  margin-bottom: 12rpx;
+}
+
+.feature-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 底部提示 */
+.footer-tip {
+  text-align: center;
+  margin-top: 60rpx;
+  padding: 20rpx;
+  color: #FF6B8A;
+  font-size: 24rpx;
+}
