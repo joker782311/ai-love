@@ -29,10 +29,6 @@
         "text": "⏰ 提醒"
       },
       {
-        "pagePath": "pages/teochew-learn/teochew-learn",
-        "text": "📖 潮汕话"
-      },
-      {
         "pagePath": "pages/profile/profile",
         "text": "👤 我的"
       }
