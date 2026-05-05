@@ -10,11 +10,33 @@ App({
       })
     }
 
-    this.globalData = {}
+    this.globalData = {
+      userInfo: null,
+      openid: null,
+    }
   },
 
-  globalData: {
-    userInfo: null,
-    openid: null,
+  // 检查登录状态
+  checkLogin() {
+    return new Promise((resolve, reject) => {
+      if (this.globalData.userInfo) {
+        resolve(this.globalData.userInfo)
+        return
+      }
+
+      wx.cloud.callFunction({
+        name: 'login',
+        success: res => {
+          if (res.result.success) {
+            this.globalData.userInfo = res.result.user
+            this.globalData.openid = res.result.user._openid
+            resolve(res.result.user)
+          } else {
+            reject(res.result.error)
+          }
+        },
+        fail: reject
+      })
+    })
   }
 })

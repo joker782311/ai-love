@@ -28,16 +28,23 @@ exports.main = async (event, context) => {
     } else {
       // 新用户，创建用户记录
       const userInfo = event.userInfo || {}
+      const identity = event.identity // 'nini' | 'dandan'
 
-      // 根据微信昵称自动判断身份
+      // 优先使用用户选择的身份，其次根据微信昵称自动判断
       let nickName = userInfo.nickName || '小伙伴'
-      const wechatNick = (userInfo.nickName || '').toLowerCase()
 
-      // 如果微信昵称包含特定关键字，自动设置昵称
-      if (wechatNick.includes('妮') || wechatNick.includes('ni')) {
+      if (identity === 'nini') {
         nickName = '妮妮'
-      } else if (wechatNick.includes('蛋') || wechatNick.includes('dan')) {
+      } else if (identity === 'dandan') {
         nickName = '蛋蛋'
+      } else {
+        // 没有选择身份时，根据微信昵称自动判断
+        const wechatNick = (userInfo.nickName || '').toLowerCase()
+        if (wechatNick.includes('妮') || wechatNick.includes('ni')) {
+          nickName = '妮妮'
+        } else if (wechatNick.includes('蛋') || wechatNick.includes('dan')) {
+          nickName = '蛋蛋'
+        }
       }
 
       const result = await db.collection('users').add({
