@@ -1,0 +1,100 @@
+<!--pages/reminders/reminders.wxml-->
+<view class="container">
+  <!-- 快捷提醒模板 -->
+  <view class="quick-templates-section">
+    <view class="section-title">💬 潮汕话快捷模板</view>
+
+    <scroll-view scroll-x class="template-scroll">
+      <view class="template-list">
+        <view
+          wx:for="{{teochewTemplates}}"
+          wx:key="key"
+          class="template-item"
+          bindtap="selectTemplate"
+          data-content="{{item.teochew}}"
+        >
+          <view class="template-teochew">{{item.teochew}}</view>
+          <view class="template-chinese">{{item.chinese}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 自定义提醒 -->
+  <view class="custom-section card">
+    <view class="section-title">✏️ 自定义提醒</view>
+
+    <textarea
+      class="custom-input"
+      placeholder="输入提醒内容，或用潮汕话写..."
+      value="{{customContent}}"
+      bindinput="onCustomInput"
+      maxlength="100"
+      auto-height
+    />
+  </view>
+
+  <!-- 定时选项 -->
+  <view class="schedule-section card">
+    <view class="section-title">⏰ 定时提醒</view>
+
+    <view class="schedule-options">
+      <view
+        class="schedule-option {{!isScheduled ? 'active' : ''}}"
+        bindtap="toggleSchedule"
+        data-scheduled="false"
+      >
+        立即发送
+      </view>
+      <view
+        class="schedule-option {{isScheduled ? 'active' : ''}}"
+        bindtap="toggleSchedule"
+        data-scheduled="true"
+      >
+        定时发送
+      </view>
+    </view>
+
+    <view wx:if="{{isScheduled}}" class="time-picker">
+      <picker mode="time" value="{{scheduledTime}}" bindchange="onTimeChange">
+        <view class="time-display">🕐 {{scheduledTime}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 接收人选择 -->
+  <view class="receiver-section card">
+    <view class="section-title">👤 发送给</view>
+
+    <view class="receiver-option active">
+      <text>妮妮</text>
+      <text wx:if="{{receiverId === receiver2}}" class="check-mark">✓</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="submitReminder" loading="{{submitting}}">
+      {{isScheduled ? '设置定时提醒' : '发送提醒'}}
+    </button>
+  </view>
+
+  <!-- 提醒记录 -->
+  <view class="history-section">
+    <view class="section-title">📜 提醒记录</view>
+
+    <view wx:if="{{history.length === 0}}" class="empty-history">
+      暂无提醒记录
+    </view>
+
+    <view wx:for="{{history}}" wx:key="_id" class="history-item card">
+      <view class="history-content">{{item.content}}</view>
+      <view class="history-meta">
+        <text>{{item.createdAtStr}}</text>
+        <text class="status {{item.isSent ? 'sent' : 'pending'}}">
+          {{item.isSent ? '已发送' : '待发送'}}
+        </text>
+      </view>
+    </view>
+  </view>
+</view>
