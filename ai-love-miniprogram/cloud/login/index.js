@@ -29,14 +29,15 @@ exports.main = async (event, context) => {
       // 新用户，创建用户记录
       const userInfo = event.userInfo || {}
 
-      // 根据 openid 设置默认昵称
-      let nickName = '小伙伴'
-      if (OPENID === '9756e76169f9abc10100fda80961c580') {
+      // 根据微信昵称自动判断身份
+      let nickName = userInfo.nickName || '小伙伴'
+      const wechatNick = (userInfo.nickName || '').toLowerCase()
+
+      // 如果微信昵称包含特定关键字，自动设置昵称
+      if (wechatNick.includes('妮') || wechatNick.includes('ni')) {
         nickName = '妮妮'
-      } else if (OPENID === '482e95cf69f9ac3a0101703f04bb1f41') {
+      } else if (wechatNick.includes('蛋') || wechatNick.includes('dan')) {
         nickName = '蛋蛋'
-      } else if (userInfo.nickName) {
-        nickName = userInfo.nickName
       }
 
       const result = await db.collection('users').add({
@@ -50,20 +51,16 @@ exports.main = async (event, context) => {
         }
       })
 
-      const newUser = {
-        _id: result._id,
-        _openid: OPENID,
-        nickName: nickName,
-        realName: '',
-        avatarUrl: event.avatarUrl || '',
-        language: 'zh',
-        createdAt: new Date()
-      }
-
       return {
         success: true,
         isNewUser: true,
-        user: newUser
+        user: {
+          _id: result._id,
+          _openid: OPENID,
+          nickName: nickName,
+          avatarUrl: userInfo.avatarUrl || '',
+          language: 'zh'
+        }
       }
     }
   } catch (err) {
