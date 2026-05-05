@@ -27,19 +27,25 @@ exports.main = async (event, context) => {
       }
     } else {
       // 新用户，创建用户记录
-      const defaultNicknames = {
-        'ovxxxxxxxxx1': '妮妮', // TODO: 替换为妮妮的 openid
-        'ovxxxxxxxxx2': '蛋蛋'  // TODO: 替换为蛋蛋的 openid
-      }
+      const userInfo = event.userInfo || {}
 
-      const nickName = defaultNicknames[OPENID] || '小伙伴'
+      // 根据 openid 设置默认昵称
+      let nickName = '小伙伴'
+      if (OPENID === '9756e76169f9abc10100fda80961c580') {
+        nickName = '妮妮'
+      } else if (OPENID === '482e95cf69f9ac3a0101703f04bb1f41') {
+        nickName = '蛋蛋'
+      } else if (userInfo.nickName) {
+        nickName = userInfo.nickName
+      }
 
       const result = await db.collection('users').add({
         data: {
+          _openid: OPENID,
           nickName: nickName,
           realName: '',
-          avatarUrl: event.avatarUrl || '',
-          language: 'zh', // 'zh' | 'teochew'
+          avatarUrl: userInfo.avatarUrl || '',
+          language: 'zh',
           createdAt: db.serverDate()
         }
       })
