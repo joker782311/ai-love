@@ -37,13 +37,20 @@ Page({
             })
           }
         } else {
-          console.error('检查登录状态失败:', res.result.error)
-          this.setData({ loading: false })
+          // 云函数返回失败（如新用户需要选择身份），显示身份选择界面
+          this.setData({
+            needsIdentity: true,
+            loading: false
+          })
         }
       },
       fail: err => {
         console.error('检查登录状态失败:', err)
-        this.setData({ loading: false })
+        // 网络错误或其他问题时，也显示身份选择界面
+        this.setData({
+          needsIdentity: true,
+          loading: false
+        })
       }
     })
   },
