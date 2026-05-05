@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/profile/profile",
     "pages/note-detail/note-detail",
-    "pages/create-note/create-note"
+    "pages/create-note/create-note",
+    "pages/write-message/write-message"
   ],
   "window": {
     "backgroundColor": "#FFF3E0",
