@@ -1,16 +1,20 @@
 // cloud/scheduledReminder/index.js
 const cloud = require('wx-server-sdk')
 
-// 显式指定云开发环境 ID
 cloud.init({
-  env: 'cloud1-d9gum5alw05f9ed63'
+  env: cloud.DYNAMIC_CURRENT_ENV
 })
 
 const db = cloud.database()
+const wxContext = cloud.getWXContext()
 
 // 云函数入口 - 由云开发定时任务触发
 exports.main = async (event, context) => {
   try {
+    console.log('wxContext:', wxContext)
+    console.log('OPENID:', wxContext?.OPENID)
+    console.log('ENV:', wxContext?.ENV)
+
     // 获取当前时间（转换为北京时间 UTC+8）
     const now = new Date()
     const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000)
