@@ -30,40 +30,44 @@ Page({
 
   // 获取接收人信息（从数据库获取对方）
   async getReceiverInfo() {
-    const currentUserId = app.globalData.openid
     const currentIdentity = app.globalData.userInfo?.identity
+    console.log('当前用户身份:', currentIdentity)
 
     // 根据当前用户身份，确定接收人
     // 如果当前是妮妮，接收人就是蛋蛋；反之亦然
     const targetIdentity = currentIdentity === 'nini' ? 'dandan' : 'nini'
+    console.log('查询对方身份:', targetIdentity)
 
     try {
-      const res = await wx.cloud.callFunction({
-        name: 'login' // 复用 login 函数查询用户
-      })
+      // 查询对方用户
+      const db = wx.cloud.database()
+      const userResult = await db.collection('users')
+        .where({
+          identity: targetIdentity
+        })
+        .get()
 
-      if (res.result.success) {
-        // 查询对方用户
-        const db = wx.cloud.database()
-        const userResult = await db.collection('users')
-          .where({
-            identity: targetIdentity
-          })
-          .get()
+      console.log('查询结果:', userResult.data)
 
-        if (userResult.data.length > 0) {
-          const targetUser = userResult.data[0]
-          this.setData({
-            receiverId: targetUser._openid,
-            receiverNickName: targetUser.nickName
-          })
-        }
+      if (userResult.data.length > 0) {
+        const targetUser = userResult.data[0]
+        this.setData({
+          receiverId: targetUser._openid,
+          receiverNickName: targetUser.nickName
+        })
+        console.log('接收人:', targetUser.nickName, targetUser._openid)
+      } else {
+        console.warn('未找到对方用户，请确保数据库中有两个用户记录')
+        wx.showToast({
+          title: '对方未登录',
+          icon: 'none'
+        })
       }
     } catch (err) {
       console.error('Get receiver error:', err)
-      // 如果获取失败，使用默认值
-      this.setData({
-        receiverNickName: '对方'
+      wx.showToast({
+        title: '获取接收人失败',
+        icon: 'none'
       })
     }
   },

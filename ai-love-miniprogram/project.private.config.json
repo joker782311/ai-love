@@ -20,5 +20,17 @@
     "useIsolateContext": true
   },
   "libVersion": "3.15.2",
-  "condition": {}
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/reminders/reminders",
+          "pathName": "pages/reminders/reminders",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  }
 }
