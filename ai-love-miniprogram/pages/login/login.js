@@ -26,7 +26,7 @@ Page({
             app.globalData.userInfo = user
             app.globalData.openid = user._openid
 
-            wx.reLaunch({
+            wx.switchTab({
               url: '/pages/index/index'
             })
           } else {
@@ -95,7 +95,7 @@ Page({
 
           setTimeout(() => {
             console.log('跳转到首页')
-            wx.reLaunch({
+            wx.switchTab({
               url: '/pages/index/index'
             })
           }, 1500)

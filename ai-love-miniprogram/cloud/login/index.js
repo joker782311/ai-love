@@ -18,9 +18,12 @@ exports.main = async (event, context) => {
       _openid: OPENID
     }).get()
 
+    console.log('查询结果:', userResult.data, 'openid:', OPENID)
+
     if (userResult.data.length > 0) {
       // 用户已存在，检查是否已设置身份
       const user = userResult.data[0]
+      console.log('用户已有身份:', user.identity)
       if (!user.identity || user.identity === '') {
         // 老用户但没有身份，返回需要选择身份
         return {

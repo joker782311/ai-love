@@ -15,6 +15,29 @@
     "navigationBarBackgroundColor": "#FF6B8A",
     "navigationBarTextStyle": "white"
   },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#FF6B8A",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "🏠 首页"
+      },
+      {
+        "pagePath": "pages/reminders/reminders",
+        "text": "⏰ 提醒"
+      },
+      {
+        "pagePath": "pages/teochew-learn/teochew-learn",
+        "text": "📖 潮汕话"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "👤 我的"
+      }
+    ]
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }
