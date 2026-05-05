@@ -3,16 +3,49 @@ const app = getApp()
 
 Page({
   data: {
-    identity: '' // 'nini' | 'dandan' | ''
+    identity: '',
+    needsIdentity: false,
+    loading: true
   },
 
   onLoad: function () {
-    // 检查是否已经登录过
-    if (app.globalData.userInfo) {
-      wx.switchTab({
-        url: '/pages/index/index'
-      })
-    }
+    // 检查登录状态和是否需要选择身份
+    this.checkLoginStatus()
+  },
+
+  // 检查登录状态
+  checkLoginStatus() {
+    wx.cloud.callFunction({
+      name: 'login',
+      success: res => {
+        if (res.result.success) {
+          const user = res.result.user
+
+          // 如果已设置身份，直接跳转到首页
+          if (!res.result.needsIdentity && user.identity) {
+            app.globalData.userInfo = user
+            app.globalData.openid = user._openid
+
+            wx.reLaunch({
+              url: '/pages/index/index'
+            })
+          } else {
+            // 需要选择身份（新用户或老用户未设置身份）
+            this.setData({
+              needsIdentity: true,
+              loading: false
+            })
+          }
+        } else {
+          console.error('检查登录状态失败:', res.result.error)
+          this.setData({ loading: false })
+        }
+      },
+      fail: err => {
+        console.error('检查登录状态失败:', err)
+        this.setData({ loading: false })
+      }
+    })
   },
 
   // 选择身份

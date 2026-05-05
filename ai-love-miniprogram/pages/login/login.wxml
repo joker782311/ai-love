@@ -1,45 +1,60 @@
 <!--pages/login/login.wxml-->
 <view class="container">
-  <view class="logo-section">
-    <view class="logo">💕</view>
-    <view class="title">妮 ycm 蛋</view>
-    <view class="subtitle">记录我们的点点滴滴</view>
+  <!-- 加载状态 -->
+  <view class="loading-section" wx:if="{{loading}}">
+    <view class="loading-spinner">⏳</view>
+    <view class="loading-text">正在检查登录状态...</view>
   </view>
 
-  <view class="login-section card">
-    <view class="welcome-text">欢迎加入我们的甜蜜小窝 ❤️</view>
+  <!-- 已设置身份，自动跳转 -->
+  <view class="redirect-section" wx:elif="{{!needsIdentity && !loading}}">
+    <view class="redirect-icon">✅</view>
+    <view class="redirect-text">已登录，正在跳转...</view>
+  </view>
 
-    <view class="identity-section">
-      <view class="section-title">请选择你的身份</view>
+  <!-- 需要选择身份 -->
+  <block wx:else>
+    <view class="logo-section">
+      <view class="logo">💕</view>
+      <view class="title">妮 ycm 蛋</view>
+      <view class="subtitle">记录我们的点点滴滴</view>
+    </view>
 
-      <view class="identity-options">
-        <view
-          class="identity-option {{identity === 'nini' ? 'active' : ''}}"
-          bindtap="selectIdentity"
-          data-identity="nini"
-        >
-          <view class="identity-icon">👧</view>
-          <view class="identity-name">妮妮</view>
-        </view>
+    <view class="login-section card">
+      <view class="welcome-text">欢迎加入我们的甜蜜小窝 ❤️</view>
 
-        <view
-          class="identity-option {{identity === 'dandan' ? 'active' : ''}}"
-          bindtap="selectIdentity"
-          data-identity="dandan"
-        >
-          <view class="identity-icon">👦</view>
-          <view class="identity-name">蛋蛋</view>
+      <view class="identity-section">
+        <view class="section-title">请选择你的身份</view>
+
+        <view class="identity-options">
+          <view
+            class="identity-option {{identity === 'nini' ? 'active' : ''}}"
+            bindtap="selectIdentity"
+            data-identity="nini"
+          >
+            <view class="identity-icon">👧</view>
+            <view class="identity-name">妮妮</view>
+          </view>
+
+          <view
+            class="identity-option {{identity === 'dandan' ? 'active' : ''}}"
+            bindtap="selectIdentity"
+            data-identity="dandan"
+          >
+            <view class="identity-icon">👦</view>
+            <view class="identity-name">蛋蛋</view>
+          </view>
         </view>
       </view>
-    </view>
 
-    <view class="tip-section">
-      <view class="tip-icon">💡</view>
-      <view class="tip-text">选择后不可更改，请谨慎选择哦～</view>
-    </view>
+      <view class="tip-section">
+        <view class="tip-icon">💡</view>
+        <view class="tip-text">选择后不可更改，请谨慎选择哦～</view>
+      </view>
 
-    <button class="login-btn" bindtap="doLogin" disabled="{{!identity}}">
-      开始我们的旅程 ✨
-    </button>
-  </view>
+      <button class="login-btn" bindtap="doLogin" disabled="{{!identity}}">
+        开始我们的旅程 ✨
+      </button>
+    </view>
+  </block>
 </view>

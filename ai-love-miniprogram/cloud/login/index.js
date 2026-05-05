@@ -19,38 +19,42 @@ exports.main = async (event, context) => {
     }).get()
 
     if (userResult.data.length > 0) {
-      // 用户已存在，返回用户信息
+      // 用户已存在，检查是否已设置身份
+      const user = userResult.data[0]
+      if (!user.identity || user.identity === '') {
+        // 老用户但没有身份，返回需要选择身份
+        return {
+          success: true,
+          isNewUser: false,
+          needsIdentity: true,
+          user: user
+        }
+      }
+      // 已设置身份，直接返回用户信息
       return {
         success: true,
         isNewUser: false,
-        user: userResult.data[0]
+        needsIdentity: false,
+        user: user
       }
     } else {
-      // 新用户，创建用户记录
-      const userInfo = event.userInfo || {}
+      // 新用户，需要设置身份
       const identity = event.identity // 'nini' | 'dandan'
-
-      // 优先使用用户选择的身份，其次根据微信昵称自动判断
-      let nickName = userInfo.nickName || '小伙伴'
-
-      if (identity === 'nini') {
-        nickName = '妮妮'
-      } else if (identity === 'dandan') {
-        nickName = '蛋蛋'
-      } else {
-        // 没有选择身份时，根据微信昵称自动判断
-        const wechatNick = (userInfo.nickName || '').toLowerCase()
-        if (wechatNick.includes('妮') || wechatNick.includes('ni')) {
-          nickName = '妮妮'
-        } else if (wechatNick.includes('蛋') || wechatNick.includes('dan')) {
-          nickName = '蛋蛋'
+      if (!identity) {
+        return {
+          success: false,
+          error: '新用户需要选择身份'
         }
       }
+
+      const nickName = identity === 'nini' ? '妮妮' : '蛋蛋'
+      const userInfo = event.userInfo || {}
 
       const result = await db.collection('users').add({
         data: {
           _openid: OPENID,
           nickName: nickName,
+          identity: identity,
           realName: '',
           avatarUrl: userInfo.avatarUrl || '',
           language: 'zh',
@@ -61,10 +65,12 @@ exports.main = async (event, context) => {
       return {
         success: true,
         isNewUser: true,
+        needsIdentity: false,
         user: {
           _id: result._id,
           _openid: OPENID,
           nickName: nickName,
+          identity: identity,
           avatarUrl: userInfo.avatarUrl || '',
           language: 'zh'
         }
