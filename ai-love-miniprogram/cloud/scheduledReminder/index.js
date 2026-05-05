@@ -10,13 +10,14 @@ const db = cloud.database()
 // 云函数入口 - 由云开发定时任务触发
 exports.main = async (event, context) => {
   try {
-    // 获取当前时间
+    // 获取当前时间（转换为北京时间 UTC+8）
     const now = new Date()
-    const currentHour = String(now.getHours()).padStart(2, '0')
-    const currentMinute = String(now.getMinutes()).padStart(2, '0')
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+    const currentHour = String(beijingTime.getHours()).padStart(2, '0')
+    const currentMinute = String(beijingTime.getMinutes()).padStart(2, '0')
     const currentTime = `${currentHour}:${currentMinute}`
 
-    console.log('定时任务触发，当前时间:', currentTime)
+    console.log('定时任务触发，当前北京时间:', currentTime)
 
     // 查询所有待发送的定时提醒
     const tasks = await db.collection('scheduledTasks')
@@ -33,11 +34,11 @@ exports.main = async (event, context) => {
 
     for (const task of tasks.data) {
       try {
-        // 格式化时间为微信要求的格式：YYYY-MM-DD HH:mm
-        const now = new Date()
-        const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+        // 格式化时间为微信要求的格式：YYYY-MM-DD HH:mm（北京时间）
+        const beijingNow = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+        const timeStr = `${beijingNow.getFullYear()}-${String(beijingNow.getMonth() + 1).padStart(2, '0')}-${String(beijingNow.getDate()).padStart(2, '0')} ${String(beijingNow.getHours()).padStart(2, '0')}:${String(beijingNow.getMinutes()).padStart(2, '0')}`
         // date4 需要是日期格式：YYYY 年 MM 月 DD 日
-        const dateStr = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日`
+        const dateStr = `${beijingNow.getFullYear()}年${String(beijingNow.getMonth() + 1).padStart(2, '0')}月${String(beijingNow.getDate()).padStart(2, '0')}日`
 
         // 发送订阅消息
         await cloud.openapi.subscribeMessage.send({
