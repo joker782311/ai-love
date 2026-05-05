@@ -11,18 +11,18 @@ exports.main = async (event, context) => {
   const { page = 1, pageSize = 10, category } = event
 
   try {
-    const dbQuery = db.collection('notes')
-      .orderBy('createdAt', 'desc')
+    // 构建查询条件
+    let query = db.collection('notes')
 
     // 按分类筛选
     if (category && category !== 'all') {
-      dbQuery.where({ category: category })
+      query = query.where({ category: category })
     }
 
-    // 分页
-    const skipCount = (page - 1) * pageSize
-    const notesResult = await dbQuery
-      .skip(skipCount)
+    // 排序和分页
+    const notesResult = await query
+      .orderBy('createdAt', 'desc')
+      .skip((page - 1) * pageSize)
       .limit(pageSize)
       .get()
 
