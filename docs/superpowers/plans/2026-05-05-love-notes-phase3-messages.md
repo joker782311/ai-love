@@ -2,18 +2,19 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 将留言功能优化为"纸条模式"，增加拆信封动效、信纸样式选择，提升互动仪式感
+**Goal:** 将留言功能优化为"纸条模式"，增加拆信封动效、信纸样式选择、**支持插入图片**，提升互动仪式感
 
 **Architecture:** 
 - 留言列表以"小纸条"形式展示
-- 新增"写纸条"页面，可选择信纸样式
+- 新增"写纸条"页面，可选择信纸样式、上传图片（最多 3 张）
 - 拆信封动效使用 CSS 动画实现
-- 云函数支持信纸样式存储和查询
+- 云函数支持信纸样式存储和查询，图片存储在云存储
+- 纸条内的图片可点击预览
 
 **Tech Stack:** 
 - 微信小程序原生框架
 - CSS 动画实现交互动效
-- 微信云开发（云数据库）
+- 微信云开发（云数据库、云存储）
 
 ---
 
@@ -231,6 +232,20 @@ git commit -m "feat(phase3): 部署 getMessages 云函数"
     </view>
   </view>
   
+  <!-- 图片上传 -->
+  <view class="image-section card">
+    <view class="image-label">添加图片（最多 3 张）</view>
+    <view class="image-list">
+      <view wx:for="{{images}}" wx:key="*this" class="image-item">
+        <image class="image-preview" src="{{item}}" mode="aspectFill"></image>
+        <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
+      </view>
+      <view wx:if="{{images.length < 3}}" class="image-add" bindtap="chooseImage">
+        <text>+</text>
+      </view>
+    </view>
+  </view>
+  
   <!-- 提交按钮 -->
   <view class="submit-section">
     <button class="submit-btn" bindtap="submitMessage" loading="{{submitting}}">
@@ -315,6 +330,63 @@ git commit -m "feat(phase3): 部署 getMessages 云函数"
   background: transparent;
 }
 
+/* 图片上传 */
+.image-section {
+  margin-bottom: 24rpx;
+}
+
+.image-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 180rpx;
+  height: 180rpx;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 12rpx;
+}
+
+.image-delete {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.image-add {
+  width: 180rpx;
+  height: 180rpx;
+  background: white;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+  color: #FF6B8A;
+  border: 2rpx dashed #FF6B8A;
+}
+
 /* 提交按钮 */
 .submit-section {
   padding: 20rpx;
@@ -339,6 +411,7 @@ Page({
   data: {
     noteId: '',
     content: '',
+    images: [],
     currentPaper: 'default',
     paperGradient: 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)',
     submitting: false,
@@ -382,14 +455,39 @@ Page({
     })
   },
 
+  // 选择图片
+  chooseImage() {
+    const remaining = 3 - this.data.images.length
+    
+    wx.chooseImage({
+      count: remaining,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: res => {
+        this.setData({
+          images: this.data.images.concat(res.tempFilePaths)
+        })
+      }
+    })
+  },
+
+  // 删除图片
+  deleteImage(e) {
+    const index = e.currentTarget.dataset.index
+    this.data.images.splice(index, 1)
+    this.setData({
+      images: this.data.images
+    })
+  },
+
   // 提交留言
   submitMessage() {
     if (this.data.submitting) return
     
     const content = this.data.content.trim()
-    if (!content) {
+    if (!content && this.data.images.length === 0) {
       wx.showToast({
-        title: '请输入留言内容',
+        title: '请输入内容或选择图片',
         icon: 'none'
       })
       return
@@ -397,11 +495,43 @@ Page({
     
     this.setData({ submitting: true })
     
+    // 上传图片（如果有）
+    if (this.data.images.length > 0) {
+      this.uploadImages().then(imageUrls => {
+        this.doSubmit(imageUrls)
+      }).catch(() => {
+        wx.showToast({
+          title: '图片上传失败',
+          icon: 'none'
+        })
+        this.setData({ submitting: false })
+      })
+    } else {
+      this.doSubmit([])
+    }
+  },
+
+  // 上传图片
+  async uploadImages() {
+    const uploadPromises = this.data.images.map(path => {
+      return wx.cloud.uploadFile({
+        cloudPath: `messages/${Date.now()}_${Math.random()}.jpg`,
+        filePath: path
+      })
+    })
+    
+    const results = await Promise.all(uploadPromises)
+    return results.map(res => res.fileID)
+  },
+
+  // 执行提交
+  doSubmit(imageUrls) {
     wx.cloud.callFunction({
       name: 'createMessage',
       data: {
         noteId: this.data.noteId,
-        content: content,
+        content: this.data.content.trim(),
+        images: imageUrls,
         paperStyle: this.data.currentPaper
       },
       success: res => {
@@ -520,6 +650,18 @@ git commit -m "feat(phase3): 创建写纸条页面"
               </view>
             </view>
             <view class="message-content">{{item.content}}</view>
+            <!-- 纸条图片 -->
+            <view wx:if="{{item.images && item.images.length > 0}}" class="message-images">
+              <image 
+                wx:for="{{item.images}}" 
+                wx:key="*this"
+                class="message-image"
+                src="{{item}}"
+                mode="aspectFill"
+                bindtap="previewMessageImage"
+                data-index="{{index}}"
+              ></image>
+            </view>
           </view>
         </view>
       </view>
@@ -741,6 +883,20 @@ git commit -m "feat(phase3): 创建写纸条页面"
   word-break: break-all;
 }
 
+/* 纸条图片 */
+.message-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.message-image {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+}
+
 /* 写纸条按钮 */
 .write-message-fab {
   position: fixed;
@@ -891,6 +1047,14 @@ Page({
     const index = e.currentTarget.dataset.index
     const images = this.data.note.images
     wx.previewImage({ current: images[index], urls: images })
+  },
+
+  // 预览纸条图片
+  previewMessageImage(e) {
+    const messageIndex = e.currentTarget.dataset.index
+    const images = this.data.messages[messageIndex].images
+    wx.previewImage({ current: images[0], urls: images })
+  },
   },
 
   // 格式化日期（保留原有逻辑）

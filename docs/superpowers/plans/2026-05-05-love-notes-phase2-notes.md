@@ -1934,7 +1934,7 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { OPENID } = wxContext
   
-  const { noteId, content, paperStyle } = event
+  const { noteId, content, images, paperStyle } = event
   
   // 参数校验
   if (!noteId) {
@@ -1944,10 +1944,10 @@ exports.main = async (event, context) => {
     }
   }
   
-  if (!content || content.trim() === '') {
+  if ((!content || content.trim() === '') && (!images || images.length === 0)) {
     return {
       success: false,
-      error: '留言内容不能为空'
+      error: '留言内容或图片不能为空'
     }
   }
   
@@ -1966,7 +1966,8 @@ exports.main = async (event, context) => {
       data: {
         noteId: noteId,
         authorId: OPENID,
-        content: content.trim(),
+        content: content ? content.trim() : '',
+        images: images || [],
         paperStyle: paperStyle || 'default',
         createdAt: db.serverDate()
       }
