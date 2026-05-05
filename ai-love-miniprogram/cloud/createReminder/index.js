@@ -39,12 +39,16 @@ exports.main = async (event, context) => {
           content: content
         })
 
+        // 格式化时间为微信要求的格式：YYYY-MM-DD HH:mm
+        const now = new Date()
+        const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+
         await cloud.openapi.subscribeMessage.send({
           touser: receiverId,
           templateId: templateId,
           data: {
             thing2: { value: content.length > 20 ? content.substring(0, 20) + '...' : content },
-            time3: { value: new Date().toLocaleString('zh-CN') },
+            time3: { value: timeStr },
             date4: { value: scheduledTime || '立即' }
           }
         })
