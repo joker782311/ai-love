@@ -3,82 +3,135 @@ const app = getApp()
 
 Page({
   data: {
-    userInfo: null
+    notes: [],
+    currentCategory: 'all',
+    page: 1,
+    pageSize: 10,
+    hasMore: true,
+    loading: false
   },
 
   onLoad: function () {
-    // 检查登录状态
-    this.checkLogin()
+    this.loadNotes()
   },
 
-  // 检查登录状态
-  async checkLogin() {
-    const that = this
+  onShow: function () {
+    // 每次显示时刷新数据
+    this.refreshNotes()
+  },
 
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo
-      })
-    } else {
-      // 调用登录云函数
-      wx.cloud.callFunction({
-        name: 'login',
-        data: {},
-        success: res => {
-          if (res.result.success) {
-            app.globalData.userInfo = res.result.user
-            app.globalData.openid = res.result.user._openid
-            that.setData({
-              userInfo: res.result.user
-            })
-            console.log('登录成功:', res.result.user)
-          } else {
-            console.error('登录失败:', res.result.error)
-            wx.showToast({
-              title: '登录失败，请重试',
-              icon: 'none'
-            })
-          }
-        },
-        fail: err => {
-          console.error('登录请求失败:', err)
+  // 加载笔记列表
+  async loadNotes(isRefresh = false) {
+    if (this.data.loading) return
+
+    this.setData({ loading: true })
+
+    const { page, pageSize, currentCategory } = this.data
+
+    wx.cloud.callFunction({
+      name: 'getNotes',
+      data: {
+        page: page,
+        pageSize: pageSize,
+        category: currentCategory
+      },
+      success: res => {
+        if (res.result.success) {
+          const notes = res.result.notes.map(note => ({
+            ...note,
+            createdAtStr: this.formatDate(note.createdAt)
+          }))
+
+          this.setData({
+            notes: isRefresh ? notes : this.data.notes.concat(notes),
+            hasMore: res.result.hasMore,
+            page: isRefresh ? 2 : this.data.page + 1,
+            loading: false
+          })
+        } else {
           wx.showToast({
-            title: '网络错误',
+            title: res.result.error || '加载失败',
             icon: 'none'
           })
+          this.setData({ loading: false })
         }
-      })
+      },
+      fail: err => {
+        console.error('Load notes error:', err)
+        wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
+        this.setData({ loading: false })
+      }
+    })
+  },
+
+  // 刷新笔记
+  refreshNotes() {
+    this.setData({
+      page: 1,
+      notes: [],
+      hasMore: true
+    })
+    this.loadNotes(true)
+  },
+
+  // 切换分类
+  changeCategory(e) {
+    const category = e.currentTarget.dataset.category
+    this.setData({
+      currentCategory: category,
+      page: 1,
+      notes: [],
+      hasMore: true
+    })
+    this.loadNotes(true)
+  },
+
+  // 加载更多
+  loadMore() {
+    if (this.data.hasMore && !this.data.loading) {
+      this.loadNotes()
     }
   },
 
-  // 跳转到笔记
-  goToNotes() {
-    wx.showToast({
-      title: '笔记功能开发中...',
-      icon: 'none'
-    })
-  },
-
-  // 跳转到留言
-  goToMessages() {
-    wx.showToast({
-      title: '留言功能开发中...',
-      icon: 'none'
-    })
-  },
-
-  // 跳转到提醒
-  goToReminders() {
-    wx.showToast({
-      title: '提醒功能开发中...',
-      icon: 'none'
-    })
-  },
-
-  // 跳转到个人中心
-  goToProfile() {
+  // 跳转到详情页
+  goToDetail(e) {
+    const noteId = e.currentTarget.dataset.id
     wx.navigateTo({
-      url: '/pages/profile/profile'
+      url: `/pages/note-detail/note-detail?id=${noteId}`
     })
+  },
+
+  // 跳转到创建页
+  goToCreate() {
+    wx.navigateTo({
+      url: '/pages/create-note/create-note'
+    })
+  },
+
+  // 格式化日期
+  formatDate(dateStr) {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diff = now - date
+
+    const minute = 60 * 1000
+    const hour = 60 * minute
+    const day = 24 * hour
+
+    if (diff < minute) {
+      return '刚刚'
+    } else if (diff < hour) {
+      return Math.floor(diff / minute) + '分钟前'
+    } else if (diff < day) {
+      return Math.floor(diff / hour) + '小时前'
+    } else if (diff < 7 * day) {
+      return Math.floor(diff / day) + '天前'
+    } else {
+      return `${date.getMonth() + 1}/${date.getDate()}`
+    }
   }
 })

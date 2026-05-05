@@ -1,33 +1,78 @@
 <!--pages/index/index.wxml-->
 <view class="container">
-  <!-- 欢迎区域 -->
-  <view class="welcome-section card">
-    <view class="welcome-title">欢迎来到妮妮的恋爱小馆 🏠</view>
-    <view class="welcome-subtitle">记录我们的点点滴滴</view>
+  <!-- 分类筛选 -->
+  <view class="filter-section">
+    <scroll-view scroll-x class="filter-scroll">
+      <view
+        class="filter-item {{currentCategory === 'all' ? 'active' : ''}}"
+        bindtap="changeCategory"
+        data-category="all"
+      >全部</view>
+      <view
+        class="filter-item {{currentCategory === 'idea' ? 'active' : ''}}"
+        bindtap="changeCategory"
+        data-category="idea"
+      >💡 想法</view>
+      <view
+        class="filter-item {{currentCategory === 'thought' ? 'active' : ''}}"
+        bindtap="changeCategory"
+        data-category="thought"
+      >💭 心情</view>
+      <view
+        class="filter-item {{currentCategory === 'memory' ? 'active' : ''}}"
+        bindtap="changeCategory"
+        data-category="memory"
+      >📸 回忆</view>
+    </scroll-view>
   </view>
 
-  <!-- 功能入口 -->
-  <view class="feature-grid">
-    <view class="feature-item card" bindtap="goToNotes">
-      <view class="feature-icon">📝</view>
-      <view class="feature-name">笔记</view>
+  <!-- 笔记列表 -->
+  <view class="notes-list">
+    <view wx:if="{{notes.length === 0}}" class="empty-tip">
+      <view class="empty-icon">📝</view>
+      <view class="empty-text">还没有笔记哦</view>
+      <view class="empty-hint">点击右下角按钮写一篇吧</view>
     </view>
-    <view class="feature-item card" bindtap="goToMessages">
-      <view class="feature-icon">💌</view>
-      <view class="feature-name">留言</view>
-    </view>
-    <view class="feature-item card" bindtap="goToReminders">
-      <view class="feature-icon">⏰</view>
-      <view class="feature-name">提醒</view>
-    </view>
-    <view class="feature-item card" bindtap="goToProfile">
-      <view class="feature-icon">👤</view>
-      <view class="feature-name">我的</view>
+
+    <view wx:for="{{notes}}" wx:key="_id" class="note-card card" bindtap="goToDetail" data-id="{{item._id}}">
+      <view class="note-header">
+        <image class="note-avatar" src="{{item.author.avatarUrl}}" mode="aspectFill"></image>
+        <view class="note-info">
+          <view class="note-author">{{item.author.nickName}}</view>
+          <view class="note-time">{{item.createdAtStr}}</view>
+        </view>
+      </view>
+
+      <view class="note-content">{{item.content}}</view>
+
+      <view wx:if="{{item.images && item.images.length > 0}}" class="note-images">
+        <image
+          wx:for="{{item.images}}"
+          wx:key="*this"
+          class="note-image"
+          src="{{item}}"
+          mode="aspectFill"
+        ></image>
+      </view>
+
+      <view class="note-footer">
+        <view class="note-category">
+          <text wx:if="{{item.category === 'idea'}}">💡 想法</text>
+          <text wx:if="{{item.category === 'thought'}}">💭 心情</text>
+          <text wx:if="{{item.category === 'memory'}}">📸 回忆</text>
+        </view>
+        <view class="note-message-count">💬 {{item.messageCount || 0}}</view>
+      </view>
     </view>
   </view>
 
-  <!-- 底部提示 -->
-  <view class="footer-tip">
-    <view>妮妮 ❤️ 蛋蛋</view>
+  <!-- 加载更多 -->
+  <view wx:if="{{hasMore}}" class="load-more" bindtap="loadMore">
+    <text>加载更多</text>
   </view>
+</view>
+
+<!-- 发布按钮 -->
+<view class="fab-button" bindtap="goToCreate">
+  <text>+</text>
 </view>
