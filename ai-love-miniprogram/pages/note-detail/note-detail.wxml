@@ -46,7 +46,7 @@
 
     <view wx:for="{{messages}}" wx:key="_id" class="message-wrapper">
       <view
-        class="message-card {{openedMessages[index] ? 'opened' : 'closed'}}"
+        class="message-card {{openedMessages[index] ? 'opened' : ''}}"
         style="background: {{getPaperGradient(item.paperStyle)}}"
         bindtap="toggleMessage"
         data-index="{{index}}"
@@ -58,7 +58,7 @@
             <view class="envelope-sender">{{item.author.nickName}}</view>
             <view class="envelope-hint">点击打开</view>
           </view>
-          <view wx:if="{{openedMessages[index]}}" class="message-inner">
+          <view wx:else class="message-inner">
             <view class="message-header">
               <image class="message-avatar" src="{{item.author.avatarUrl}}" mode="aspectFill"></image>
               <view class="message-info">
@@ -76,7 +76,6 @@
                 src="{{item}}"
                 mode="aspectFill"
                 bindtap="previewMessageImage"
-                data-message-index="{{index}}"
                 data-image-index="{{index}}"
               ></image>
             </view>

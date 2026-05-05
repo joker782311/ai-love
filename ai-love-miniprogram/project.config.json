@@ -44,13 +44,15 @@
     "disableSWC": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.19.4",
-  "appid": "wxe56feef57f834025",
+  "libVersion": "3.15.2",
+  "appid": "wxbda295ee7f64948a",
   "projectname": "ai-love-miniprogram",
   "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
   },
-  "simulatorPluginLibVersion": {}
+  "simulatorPluginLibVersion": {},
+  "cloudfunctionRoot": "cloud/",
+  "cloudfunctionTemplateRoot": "cloudfunctionTemplate/"
 }

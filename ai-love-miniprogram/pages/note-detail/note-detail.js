@@ -6,7 +6,7 @@ Page({
     noteId: '',
     note: null,
     messages: [],
-    openedMessages: {}, // 记录哪些纸条被打开了
+    openedMessages: [], // 记录哪些纸条被打开了（数组更可靠）
     isAuthor: false
   },
 
@@ -66,10 +66,14 @@ Page({
   // 切换纸条打开/关闭状态
   toggleMessage(e) {
     const index = e.currentTarget.dataset.index
-    const key = `openedMessages.${index}`
+    const opened = this.data.openedMessages[index] || false
+
+    // 创建新数组，避免直接修改原数组
+    const newOpened = [...this.data.openedMessages]
+    newOpened[index] = !opened
 
     this.setData({
-      [key]: !this.data.openedMessages[index]
+      openedMessages: newOpened
     })
   },
 
