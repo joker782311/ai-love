@@ -7,18 +7,9 @@ cloud.init({
 
 const db = cloud.database()
 
-// 云函数入口 - 支持定时触发器和 HTTP 触发器
+// 云函数入口 - 由云开发定时任务触发
 exports.main = async (event, context) => {
   try {
-    // HTTP 触发器需要通过云函数 ID 获取访问令牌
-    const wxContext = cloud.getWXContext()
-    console.log('wxContext:', wxContext)
-    console.log('OPENID:', wxContext?.OPENID)
-    console.log('ENV:', wxContext?.ENV)
-
-    // 如果是 HTTP 触发，返回 HTTP 响应
-    const isHttp = event?.httpMethod === 'GET' || event?.httpMethod === 'POST'
-
     // 获取当前时间（转换为北京时间 UTC+8）
     const now = new Date()
     const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000)
@@ -38,27 +29,28 @@ exports.main = async (event, context) => {
 
     console.log('待发送任务数量:', tasks.data.length)
 
-    const templateId = 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI' // 订阅消息模板 ID
     const results = []
 
     for (const task of tasks.data) {
       try {
-        // 格式化时间为微信要求的格式：YYYY-MM-DD HH:mm（北京时间）
-        const beijingNow = new Date(now.getTime() + 8 * 60 * 60 * 1000)
-        const timeStr = `${beijingNow.getFullYear()}-${String(beijingNow.getMonth() + 1).padStart(2, '0')}-${String(beijingNow.getDate()).padStart(2, '0')} ${String(beijingNow.getHours()).padStart(2, '0')}:${String(beijingNow.getMinutes()).padStart(2, '0')}`
-        // date4 需要是日期格式：YYYY 年 MM 月 DD 日
-        const dateStr = `${beijingNow.getFullYear()}年${String(beijingNow.getMonth() + 1).padStart(2, '0')}月${String(beijingNow.getDate()).padStart(2, '0')}日`
-
-        // 发送订阅消息
+        // 使用云函数 ID 作为凭证发送订阅消息
+        // 这样即使没有用户上下文也能发送
         await cloud.openapi.subscribeMessage.send({
           touser: task.receiverId,
-          templateId: templateId,
+          templateId: 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI',
+          miniprogramState: 'formal',
+          page: 'pages/reminders/reminders',
           data: {
             thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
-            time3: { value: timeStr },
-            date4: { value: dateStr }
+            time3: { value: `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')} ${currentTime}` },
+            date4: { value: `${beijingTime.getFullYear()}年${String(beijingTime.getMonth() + 1).padStart(2, '0')}月${String(beijingTime.getDate()).padStart(2, '0')}日` }
           }
+        }, {
+          // 使用云函数自身的凭证，而不是用户凭证
+          $url: 'tcb'
         })
+
+        console.log('消息发送成功:', task._id)
 
         // 更新提醒状态
         if (task.reminderId) {
