@@ -1,0 +1,57 @@
+<!--pages/write-message/write-message.wxml-->
+<view class="container">
+  <!-- 信纸选择 -->
+  <view class="paper-section">
+    <view class="section-title">选择信纸</view>
+    <scroll-view scroll-x class="paper-scroll">
+      <view class="paper-list">
+        <view
+          wx:for="{{papers}}"
+          wx:key="value"
+          class="paper-item {{currentPaper === item.value ? 'active' : ''}}"
+          bindtap="selectPaper"
+          data-value="{{item.value}}"
+          data-gradient="{{item.gradient}}"
+        >
+          <view class="paper-preview" style="background: {{item.gradient}}"></view>
+          <view class="paper-name">{{item.name}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 内容输入 -->
+  <view class="content-section card">
+    <view class="preview-paper" style="background: {{paperGradient}}">
+      <textarea
+        class="content-textarea"
+        placeholder="想对 TA 说些什么..."
+        value="{{content}}"
+        bindinput="onContentInput"
+        maxlength="500"
+        auto-height
+      />
+    </view>
+  </view>
+
+  <!-- 图片上传 -->
+  <view class="image-section card">
+    <view class="image-label">添加图片（最多 3 张）</view>
+    <view class="image-list">
+      <view wx:for="{{images}}" wx:key="*this" class="image-item">
+        <image class="image-preview" src="{{item}}" mode="aspectFill"></image>
+        <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
+      </view>
+      <view wx:if="{{images.length < 3}}" class="image-add" bindtap="chooseImage">
+        <text>+</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="submitMessage" loading="{{submitting}}">
+      发送纸条 💌
+    </button>
+  </view>
+</view>

@@ -1,0 +1,148 @@
+/* pages/write-message/write-message.wxss */
+.container {
+  padding: 20rpx;
+  padding-bottom: 120rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF3E0 0%, #FFE4E1 100%);
+}
+
+/* 信纸选择 */
+.paper-section {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.paper-scroll {
+  white-space: nowrap;
+}
+
+.paper-list {
+  display: inline-flex;
+  gap: 16rpx;
+}
+
+.paper-item {
+  display: inline-block;
+  width: 140rpx;
+  text-align: center;
+}
+
+.paper-preview {
+  width: 140rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  border: 4rpx solid transparent;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.paper-item.active .paper-preview {
+  border-color: #FF6B8A;
+  transform: scale(1.05);
+}
+
+.paper-name {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+/* 内容输入 */
+.content-section {
+  margin-bottom: 24rpx;
+}
+
+.card {
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.preview-paper {
+  padding: 24rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.content-textarea {
+  width: 100%;
+  min-height: 300rpx;
+  font-size: 30rpx;
+  line-height: 1.8;
+  background: transparent;
+}
+
+/* 图片上传 */
+.image-section {
+  margin-bottom: 24rpx;
+}
+
+.image-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 180rpx;
+  height: 180rpx;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 12rpx;
+}
+
+.image-delete {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.image-add {
+  width: 180rpx;
+  height: 180rpx;
+  background: white;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64rpx;
+  color: #FF6B8A;
+  border: 2rpx dashed #FF6B8A;
+}
+
+/* 提交按钮 */
+.submit-section {
+  padding: 20rpx;
+}
+
+.submit-btn {
+  background: #FF6B8A;
+  color: white;
+  border-radius: 40rpx;
+  font-size: 32rpx;
+  padding: 20rpx;
+}
