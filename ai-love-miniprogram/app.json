@@ -4,7 +4,8 @@
     "pages/profile/profile",
     "pages/note-detail/note-detail",
     "pages/create-note/create-note",
-    "pages/write-message/write-message"
+    "pages/write-message/write-message",
+    "pages/reminders/reminders"
   ],
   "window": {
     "backgroundColor": "#FFF3E0",

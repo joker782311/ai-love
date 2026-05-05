@@ -245,3 +245,120 @@ wx.cloud.callFunction({
 3. 编译预览并测试纸条功能
 
 ---
+
+# Phase 4 待办事项 - 需要手动操作
+
+## Task 6: 创建 reminders 集合并配置
+
+### Step 1: 创建 reminders 集合
+在微信开发者工具云开发控制台：
+1. 点击"数据库"
+2. 点击"添加集合"
+3. 输入集合名称：`reminders`
+4. 点击确定
+
+### Step 2: 设置数据库权限
+在 `reminders` 集合的"权限设置"中：
+```json
+{
+  "read": "auth.openid == doc._openid || auth.openid == doc.senderId || auth.openid == doc.receiverId",
+  "write": "auth.openid == doc._openid"
+}
+```
+
+### Step 3: 上传并部署所有云函数
+在微信开发者工具中：
+1. 右键点击 `cloud/createReminder` → "上传并部署：云端安装依赖"
+2. 右键点击 `cloud/sendReminder` → "上传并部署：云端安装依赖"
+3. 右键点击 `cloud/getReminders` → "上传并部署：云端安装依赖"
+
+### Step 4: 更新页面路径配置
+在 `app.json` 的 `pages` 数组中添加：
+```json
+"pages/reminders/reminders"
+```
+
+---
+
+## Task 7: 申请订阅消息模板
+
+### Step 1: 登录微信公众平台
+访问 https://mp.weixin.qq.com/
+
+### Step 2: 进入订阅消息
+在左侧菜单选择"功能" → "订阅消息"
+
+### Step 3: 添加模板
+搜索并添加以下模板：
+- 日常提醒（或其他合适的模板）
+
+推荐模板结构：
+```
+模板标题：日常提醒
+关键词：{{thing1.DATA}}（提醒内容）
+        {{time2.DATA}}（提醒时间）
+        {{character3.DATA}}（发送人）
+```
+
+### Step 4: 记录模板 ID
+将获取的模板 ID 更新到代码中：
+- `cloud/sendReminder/index.js` 第 22 行的 `YOUR_TEMPLATE_ID`
+- `pages/reminders/reminders.js` 第 95 行的 `YOUR_TEMPLATE_ID`
+
+### Step 5: 配置定时触发器（可选，用于自动发送定时提醒）
+在 `cloud/sendReminder` 目录下创建 `config.json` 添加定时触发器配置：
+```json
+{
+  "triggers": [
+    {
+      "cronRule": "0 0 8,12,18 * * *",
+      "name": "sendScheduledReminders",
+      "timeout": 30
+    }
+  ]
+}
+```
+
+---
+
+## Task 8: 测试提醒功能
+
+### Step 1: 编译并预览
+1. 在微信开发者工具中点击"编译"
+2. 确保没有报错
+
+### Step 2: 测试手动提醒
+1. 进入提醒页面
+2. 选择快捷模板或输入自定义内容
+3. 点击"立即发送"
+4. 验证对方是否收到订阅消息
+
+### Step 3: 测试定时提醒
+1. 选择"定时发送"
+2. 设置时间
+3. 验证提醒是否保存到数据库
+
+### Step 4: 验证提醒记录
+1. 查看历史记录列表
+2. 验证状态显示（已发送/待发送）
+
+### Step 5: 更新接收人配置
+在 `pages/reminders/reminders.js` 的 `onLoad` 中，将硬编码的 openid 替换为实际的：
+- 妮妮的 openid
+- 蛋蛋的 openid
+
+---
+
+## Phase 4 验收标准
+
+- [ ] 可以选择潮汕话模板快速发送提醒
+- [ ] 可以自定义提醒内容
+- [ ] 手动提醒可以立即发送
+- [ ] 定时提醒可以设置时间（定时触发器需额外配置）
+- [ ] 提醒历史记录正确显示
+- [ ] 订阅消息正常推送
+- [ ] reminders 集合已创建并配置权限
+- [ ] 所有云函数已上传部署
+- [ ] 订阅消息模板已申请并配置
+
+---
