@@ -1,0 +1,7 @@
+{
+  "description": "项目私有配置文件，不包含在版本控制中",
+  "projectname": "ai-love-miniprogram",
+  "setting": {
+    "compileHotReLoad": true
+  }
+}

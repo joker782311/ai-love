@@ -1,0 +1,9 @@
+# 小程序
+node_modules/
+*.local
+
+# 云函数
+cloud/*/node_modules/
+
+# 编译产物
+dist/
