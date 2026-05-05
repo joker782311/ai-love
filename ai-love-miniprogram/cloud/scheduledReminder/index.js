@@ -33,21 +33,19 @@ exports.main = async (event, context) => {
 
     for (const task of tasks.data) {
       try {
-        // 使用云函数 ID 作为凭证发送订阅消息
-        // 这样即使没有用户上下文也能发送
-        await cloud.openapi.subscribeMessage.send({
-          touser: task.receiverId,
-          templateId: 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI',
-          miniprogramState: 'formal',
-          page: 'pages/reminders/reminders',
+        // 使用云函数方式发送订阅消息（支持统一消息推送）
+        await cloud.callFunction({
+          name: 'sendSubscribeMessage',
           data: {
-            thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
-            time3: { value: `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')} ${currentTime}` },
-            date4: { value: `${beijingTime.getFullYear()}年${String(beijingTime.getMonth() + 1).padStart(2, '0')}月${String(beijingTime.getDate()).padStart(2, '0')}日` }
+            touser: task.receiverId,
+            templateId: 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI',
+            page: 'pages/reminders/reminders',
+            data: {
+              thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
+              time3: { value: `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')} ${currentTime}` },
+              date4: { value: `${beijingTime.getFullYear()}年${String(beijingTime.getMonth() + 1).padStart(2, '0')}月${String(beijingTime.getDate()).padStart(2, '0')}日` }
+            }
           }
-        }, {
-          // 使用云函数自身的凭证，而不是用户凭证
-          $url: 'tcb'
         })
 
         console.log('消息发送成功:', task._id)
