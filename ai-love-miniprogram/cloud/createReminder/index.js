@@ -66,6 +66,12 @@ exports.main = async (event, context) => {
         })
       } catch (sendErr) {
         console.error('Send message error:', sendErr)
+        console.error('错误详情:', {
+          errCode: sendErr.errCode,
+          errMsg: sendErr.errMsg,
+          receiverId: receiverId,
+          content: content
+        })
         // 发送失败不抛错，只是标记为未发送
       }
     } else if (type === 'scheduled') {
