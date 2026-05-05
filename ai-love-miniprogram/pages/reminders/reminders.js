@@ -122,17 +122,33 @@ Page({
       return
     }
 
-    // 先保存提醒到数据库，订阅消息后续再配置
-    // TODO: 配置订阅消息模板后取消注释
-    // wx.requestSubscribeMessage({
-    //   tmplIds: ['YOUR_TEMPLATE_ID'],
-    //   ...
-    // })
-    this.doSubmit()
+    // 请求订阅消息授权
+    wx.requestSubscribeMessage({
+      tmplIds: ['EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI'], // 订阅消息模板 ID
+      success: res => {
+        const tmplId = Object.keys(res)[0]
+        if (res[tmplId] === 'accept') {
+          // 用户同意订阅，发送提醒
+          this.doSubmit()
+        } else {
+          // 用户拒绝，仍然保存提醒到数据库但不推送
+          wx.showToast({
+            title: '未订阅消息，提醒已保存',
+            icon: 'none'
+          })
+          this.doSubmit(true) // 跳过推送
+        }
+      },
+      fail: err => {
+        console.error('Subscribe error:', err)
+        // 订阅失败，仍然保存提醒到数据库
+        this.doSubmit(true) // 跳过推送
+      }
+    })
   },
 
   // 执行提交
-  doSubmit() {
+  doSubmit(skipPush = false) {
     this.setData({ submitting: true })
 
     wx.cloud.callFunction({
@@ -141,7 +157,8 @@ Page({
         receiverId: this.data.receiverId,
         content: this.data.customContent,
         type: this.data.isScheduled ? 'scheduled' : 'manual',
-        scheduledTime: this.data.isScheduled ? this.data.scheduledTime : null
+        scheduledTime: this.data.isScheduled ? this.data.scheduledTime : null,
+        skipPush: skipPush // 是否跳过推送
       },
       success: res => {
         this.setData({ submitting: false })

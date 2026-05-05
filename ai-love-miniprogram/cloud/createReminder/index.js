@@ -11,11 +11,11 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { OPENID } = wxContext
 
-  const { receiverId, content, type, scheduledTime } = event
+  const { receiverId, content, type, scheduledTime, skipPush } = event
 
   try {
-    // 验证订阅消息模板
-    const templateId = 'NfYbN5H3Qj8K9M2pL7vR4wX6' // TODO: 替换为实际的模板 ID
+    // 订阅消息模板 ID
+    const templateId = 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI'
 
     // 创建提醒记录
     const reminder = await db.collection('reminders').add({
@@ -25,13 +25,13 @@ exports.main = async (event, context) => {
         content: content,
         type: type || 'manual', // 'manual' | 'scheduled'
         scheduledTime: scheduledTime, // 格式：'08:00'
-        isSent: type === 'manual', // 立即发送的直接标记为已发送
+        isSent: skipPush ? false : (type === 'manual'), // 跳过推送时标记为未发送
         createdAt: db.serverDate()
       }
     })
 
-    // 如果是立即发送，调用发送接口
-    if (type === 'manual') {
+    // 如果是立即发送且不禁用推送，调用发送接口
+    if (type === 'manual' && !skipPush) {
       try {
         await cloud.openapi.subscribeMessage.send({
           touser: receiverId,

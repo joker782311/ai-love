@@ -28,7 +28,7 @@ exports.main = async (event, context) => {
 
     console.log('待发送任务数量:', tasks.data.length)
 
-    const templateId = 'NfYbN5H3Qj8K9M2pL7vR4wX6' // TODO: 替换为实际的模板 ID
+    const templateId = 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI' // 订阅消息模板 ID
     const results = []
 
     for (const task of tasks.data) {
