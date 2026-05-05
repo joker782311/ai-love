@@ -1,8 +1,9 @@
 // cloud/scheduledReminder/index.js
 const cloud = require('wx-server-sdk')
 
+// 显式指定云开发环境 ID
 cloud.init({
-  env: cloud.DYNAMIC_CURRENT_ENV
+  env: 'cloud1-d9gum5alw05f9ed63'
 })
 
 const db = cloud.database()
