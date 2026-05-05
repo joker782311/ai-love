@@ -6,14 +6,18 @@ cloud.init({
 })
 
 const db = cloud.database()
-const wxContext = cloud.getWXContext()
 
-// 云函数入口 - 由云开发定时任务触发
+// 云函数入口 - 支持定时触发器和 HTTP 触发器
 exports.main = async (event, context) => {
   try {
+    // HTTP 触发器需要通过云函数 ID 获取访问令牌
+    const wxContext = cloud.getWXContext()
     console.log('wxContext:', wxContext)
     console.log('OPENID:', wxContext?.OPENID)
     console.log('ENV:', wxContext?.ENV)
+
+    // 如果是 HTTP 触发，返回 HTTP 响应
+    const isHttp = event?.httpMethod === 'GET' || event?.httpMethod === 'POST'
 
     // 获取当前时间（转换为北京时间 UTC+8）
     const now = new Date()
@@ -91,6 +95,22 @@ exports.main = async (event, context) => {
     return {
       success: false,
       error: err.message
+    }
+  }
+}
+
+// HTTP 触发器入口
+exports.http = async (event, context) => {
+  try {
+    const result = await exports.main({}, context)
+    return {
+      statusCode: 200,
+      data: result
+    }
+  } catch (err) {
+    return {
+      statusCode: 500,
+      data: { error: err.message }
     }
   }
 }
