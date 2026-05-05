@@ -104,4 +104,11 @@
 .about-desc {
   font-size: 24rpx;
   color: #FF6B8A;
+  margin-bottom: 16rpx;
+}
+
+.about-copyright {
+  font-size: 26rpx;
+  color: #FF6B8A;
+  font-weight: bold;
 }
