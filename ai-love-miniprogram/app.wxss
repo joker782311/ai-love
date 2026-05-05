@@ -1,0 +1,28 @@
+/* app.wxss - 全局样式 */
+page {
+  background-color: #FFF3E0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+.container {
+  padding: 20rpx;
+}
+
+/* 温暖可爱风 - 粉色主题 */
+.primary-color {
+  color: #FF6B8A;
+}
+
+.primary-bg {
+  background-color: #FF6B8A;
+}
+
+/* 圆角卡片样式 */
+.card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+}

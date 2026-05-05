@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundColor": "#FFF3E0",
+    "navigationBarTitleText": "妮妮的恋爱小馆",
+    "navigationBarBackgroundColor": "#FF6B8A",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
