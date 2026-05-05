@@ -9,8 +9,8 @@ module.exports = {
   // 应用名称
   app: {
     name: {
-      zh: '妮妮的恋爱小馆',
-      teochew: '妮妮的恋爱小馆' // 保持原名，增加潮汕话副标题
+      zh: '妮 ycm 蛋',
+      teochew: '妮 ycm 蛋'
     },
     subtitle: {
       zh: '记录我们的点点滴滴',
@@ -33,8 +33,8 @@ module.exports = {
   // 首页
   home: {
     welcome: {
-      zh: '欢迎来到妮妮的恋爱小馆',
-      teochew: '欢迎来妮妮的恋爱小馆'
+      zh: '欢迎来到妮 ycm 蛋',
+      teochew: '欢迎来妮 ycm 蛋'
     },
     feature_notes: {
       zh: '笔记',
