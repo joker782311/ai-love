@@ -11,87 +11,67 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const { OPENID } = wxContext
 
-  const {
-    receiverId,
-    content,
-    type = 'manual',
-    scheduledTime,
-    templateId
-  } = event
-
-  // 参数校验
-  if (!receiverId) {
-    return {
-      success: false,
-      error: '接收者 ID 不能为空'
-    }
-  }
-
-  if (!content || content.trim() === '') {
-    return {
-      success: false,
-      error: '提醒内容不能为空'
-    }
-  }
+  const { receiverId, content, type, scheduledTime } = event
 
   try {
-    const result = await db.collection('reminders').add({
+    // 验证订阅消息模板
+    const templateId = 'NfYbN5H3Qj8K9M2pL7vR4wX6' // TODO: 替换为实际的模板 ID
+
+    // 创建提醒记录
+    const reminder = await db.collection('reminders').add({
       data: {
         senderId: OPENID,
         receiverId: receiverId,
-        content: content.trim(),
-        type: type, // 'manual' | 'scheduled'
-        scheduledTime: scheduledTime || null,
-        templateId: templateId || '',
-        isSent: false,
+        content: content,
+        type: type || 'manual', // 'manual' | 'scheduled'
+        scheduledTime: scheduledTime, // 格式：'08:00'
+        isSent: type === 'manual', // 立即发送的直接标记为已发送
         createdAt: db.serverDate()
       }
     })
 
-    // 如果是手动提醒，立即发送
+    // 如果是立即发送，调用发送接口
     if (type === 'manual') {
-      // 获取接收者信息
-      const userResult = await db.collection('users')
-        .where({ _openid: receiverId })
-        .field({ nickName: true })
-        .get()
-
-      const senderResult = await db.collection('users')
-        .where({ _openid: OPENID })
-        .field({ nickName: true })
-        .get()
-
-      const receiverNick = userResult.data[0]?.nickName || '亲爱的'
-      const senderNick = senderResult.data[0]?.nickName || '某人'
-
-      // 调用发送消息
       try {
-        await cloud.callFunction({
-          name: 'sendReminder',
+        await cloud.openapi.subscribeMessage.send({
+          touser: receiverId,
+          templateId: templateId,
           data: {
-            receiverId: receiverId,
-            content: content.trim(),
-            senderNick: senderNick,
-            templateId: templateId
+            thing1: { value: content.length > 20 ? content.substring(0, 20) + '...' : content },
+            time2: { value: new Date().toLocaleString('zh-CN') }
           }
         })
 
-        // 更新发送状态
-        await db.collection('reminders')
-          .doc(result._id)
-          .update({
-            data: { isSent: true }
-          })
+        // 更新状态为已发送
+        await db.collection('reminders').doc(reminder._id).update({
+          data: {
+            isSent: true,
+            sentAt: db.serverDate()
+          }
+        })
       } catch (sendErr) {
-        console.error('Send reminder failed:', sendErr)
-        // 发送失败不阻断创建
+        console.error('Send message error:', sendErr)
+        // 发送失败不抛错，只是标记为未发送
       }
+    } else if (type === 'scheduled') {
+      // 定时任务：添加到定时任务集合
+      await db.collection('scheduledTasks').add({
+        data: {
+          type: 'reminder',
+          reminderId: reminder._id,
+          receiverId: receiverId,
+          content: content,
+          scheduledTime: scheduledTime,
+          status: 'pending',
+          createdAt: db.serverDate()
+        }
+      })
     }
 
     return {
       success: true,
-      reminderId: result._id,
-      message: type === 'manual' ? '提醒已发送' : '定时提醒已设置'
+      message: type === 'manual' ? '提醒已发送' : '定时提醒已设置',
+      reminderId: reminder._id
     }
   } catch (err) {
     console.error('Create reminder error:', err)

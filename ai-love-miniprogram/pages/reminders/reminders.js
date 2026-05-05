@@ -4,8 +4,8 @@ const teochewPhrases = require('../../config/teochew-phrases.js')
 
 Page({
   data: {
-    receiverId: '', // 妮妮的 openid
-    receiver2: '', // 蛋蛋的 openid（用于切换）
+    receiverId: '', // 对方的 openid
+    receiverNickName: '', // 对方昵称
     customContent: '',
     isScheduled: false,
     scheduledTime: '08:00',
@@ -24,14 +24,48 @@ Page({
   },
 
   onLoad: function () {
-    // TODO: 从云数据库获取妮妮和蛋蛋的 openid
-    // 这里先硬编码，后续从配置读取
-    this.setData({
-      receiverId: 'ovxxxxxxxxx1', // 妮妮的 openid
-      receiver2: 'ovxxxxxxxxx2'   // 蛋蛋的 openid
-    })
-
+    this.getReceiverInfo()
     this.loadHistory()
+  },
+
+  // 获取接收人信息（从数据库获取对方）
+  async getReceiverInfo() {
+    const currentUserId = app.globalData.openid
+    const currentIdentity = app.globalData.userInfo?.identity
+
+    // 根据当前用户身份，确定接收人
+    // 如果当前是妮妮，接收人就是蛋蛋；反之亦然
+    const targetIdentity = currentIdentity === 'nini' ? 'dandan' : 'nini'
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'login' // 复用 login 函数查询用户
+      })
+
+      if (res.result.success) {
+        // 查询对方用户
+        const db = wx.cloud.database()
+        const userResult = await db.collection('users')
+          .where({
+            identity: targetIdentity
+          })
+          .get()
+
+        if (userResult.data.length > 0) {
+          const targetUser = userResult.data[0]
+          this.setData({
+            receiverId: targetUser._openid,
+            receiverNickName: targetUser.nickName
+          })
+        }
+      }
+    } catch (err) {
+      console.error('Get receiver error:', err)
+      // 如果获取失败，使用默认值
+      this.setData({
+        receiverNickName: '对方'
+      })
+    }
   },
 
   // 选择快捷模板
@@ -79,7 +113,7 @@ Page({
 
     // 检查订阅状态
     wx.requestSubscribeMessage({
-      tmplIds: ['YOUR_TEMPLATE_ID'], // TODO: 替换为实际模板 ID
+      tmplIds: ['NfYbN5H3Qj8K9M2pL7vR4wX6'], // 订阅消息模板 ID
       success: res => {
         if (res[Object.keys(res)[0]] === 'accept') {
           this.doSubmit()

@@ -67,8 +67,7 @@
     <view class="section-title">👤 发送给</view>
 
     <view class="receiver-option active">
-      <text>妮妮</text>
-      <text wx:if="{{receiverId === receiver2}}" class="check-mark">✓</text>
+      <text>{{receiverNickName || '对方'}}</text>
     </view>
   </view>
 

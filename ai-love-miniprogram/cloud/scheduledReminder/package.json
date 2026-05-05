@@ -1,7 +1,7 @@
 {
-  "name": "getReminders",
+  "name": "scheduledReminder",
   "version": "1.0.0",
-  "description": "Get reminders cloud function",
+  "description": "Scheduled reminder cloud function",
   "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "~2.6.3"
