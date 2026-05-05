@@ -14,6 +14,9 @@ App({
       userInfo: null,
       openid: null,
     }
+
+    // 检查并发送到期的定时提醒
+    this.checkScheduledReminders()
   },
 
   // 检查登录状态
@@ -37,6 +40,21 @@ App({
         },
         fail: reject
       })
+    })
+  },
+
+  // 检查并发送到期的定时提醒
+  checkScheduledReminders() {
+    wx.cloud.callFunction({
+      name: 'checkAndSendReminders',
+      success: res => {
+        if (res.result.success && res.result.count > 0) {
+          wx.showToast({
+            title: `有${res.result.count}条提醒`,
+            icon: 'none'
+          })
+        }
+      }
     })
   }
 })

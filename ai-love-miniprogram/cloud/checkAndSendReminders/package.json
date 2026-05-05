@@ -1,0 +1,9 @@
+{
+  "name": "checkAndSendReminders",
+  "version": "1.0.0",
+  "description": "Check and send scheduled reminders",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
