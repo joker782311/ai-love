@@ -114,27 +114,21 @@ Page({
       return
     }
 
-    // 检查订阅状态
-    wx.requestSubscribeMessage({
-      tmplIds: ['NfYbN5H3Qj8K9M2pL7vR4wX6'], // 订阅消息模板 ID
-      success: res => {
-        if (res[Object.keys(res)[0]] === 'accept') {
-          this.doSubmit()
-        } else {
-          wx.showToast({
-            title: '需订阅消息才能接收提醒',
-            icon: 'none'
-          })
-        }
-      },
-      fail: err => {
-        console.error('Subscribe error:', err)
-        wx.showToast({
-          title: '订阅失败',
-          icon: 'none'
-        })
-      }
-    })
+    if (!this.data.receiverId) {
+      wx.showToast({
+        title: '获取接收人失败，请重试',
+        icon: 'none'
+      })
+      return
+    }
+
+    // 先保存提醒到数据库，订阅消息后续再配置
+    // TODO: 配置订阅消息模板后取消注释
+    // wx.requestSubscribeMessage({
+    //   tmplIds: ['YOUR_TEMPLATE_ID'],
+    //   ...
+    // })
+    this.doSubmit()
   },
 
   // 执行提交
