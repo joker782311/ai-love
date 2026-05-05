@@ -6,7 +6,7 @@ Page({
     noteId: '',
     note: null,
     messages: [],
-    messageInput: '',
+    openedMessages: {}, // 记录哪些纸条被打开了
     isAuthor: false
   },
 
@@ -33,7 +33,7 @@ Page({
       success: res => {
         if (res.result.success) {
           const note = res.result.note
-          const messages = res.result.messages
+          const messages = res.result.messages || []
 
           this.setData({
             note: {
@@ -63,55 +63,33 @@ Page({
     })
   },
 
-  // 留言输入
-  onMessageInput(e) {
+  // 切换纸条打开/关闭状态
+  toggleMessage(e) {
+    const index = e.currentTarget.dataset.index
+    const key = `openedMessages.${index}`
+
     this.setData({
-      messageInput: e.detail.value
+      [key]: !this.data.openedMessages[index]
     })
   },
 
-  // 发送留言
-  sendMessage() {
-    const content = this.data.messageInput.trim()
-
-    if (!content) {
-      wx.showToast({
-        title: '留言内容不能为空',
-        icon: 'none'
-      })
-      return
+  // 获取信纸渐变
+  getPaperGradient(paperStyle) {
+    const gradients = {
+      'default': 'linear-gradient(135deg, #fff 0%, #fff5f5 100%)',
+      'love': 'linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%)',
+      'star': 'linear-gradient(135deg, #fff8e6 0%, #fffbe6 100%)',
+      'blue': 'linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%)',
+      'green': 'linear-gradient(135deg, #e6ffe6 0%, #f0fff0 100%)',
+      'purple': 'linear-gradient(135deg, #f3e6ff 0%, #f8f0ff 100%)'
     }
+    return gradients[paperStyle] || gradients.default
+  },
 
-    wx.cloud.callFunction({
-      name: 'createMessage',
-      data: {
-        noteId: this.data.noteId,
-        content: content
-      },
-      success: res => {
-        if (res.result.success) {
-          this.setData({
-            messageInput: ''
-          })
-          this.loadNoteDetail()
-          wx.showToast({
-            title: '留言成功',
-            icon: 'success'
-          })
-        } else {
-          wx.showToast({
-            title: res.result.error || '留言失败',
-            icon: 'none'
-          })
-        }
-      },
-      fail: err => {
-        console.error('Send message error:', err)
-        wx.showToast({
-          title: '网络错误',
-          icon: 'none'
-        })
-      }
+  // 跳转到写纸条
+  goToWriteMessage() {
+    wx.navigateTo({
+      url: `/pages/write-message/write-message?noteId=${this.data.noteId}`
     })
   },
 
@@ -131,29 +109,12 @@ Page({
         if (res.confirm) {
           wx.cloud.callFunction({
             name: 'deleteNote',
-            data: {
-              noteId: this.data.noteId
-            },
+            data: { noteId: this.data.noteId },
             success: res => {
               if (res.result.success) {
-                wx.showToast({
-                  title: '已删除',
-                  icon: 'success'
-                })
+                wx.showToast({ title: '已删除', icon: 'success' })
                 setTimeout(() => wx.navigateBack(), 1500)
-              } else {
-                wx.showToast({
-                  title: res.result.error || '删除失败',
-                  icon: 'none'
-                })
               }
-            },
-            fail: err => {
-              console.error('Delete note error:', err)
-              wx.showToast({
-                title: '网络错误',
-                icon: 'none'
-              })
             }
           })
         }
@@ -165,11 +126,14 @@ Page({
   previewImage(e) {
     const index = e.currentTarget.dataset.index
     const images = this.data.note.images
+    wx.previewImage({ current: images[index], urls: images })
+  },
 
-    wx.previewImage({
-      current: images[index],
-      urls: images
-    })
+  // 预览纸条图片
+  previewMessageImage(e) {
+    const messageIndex = e.currentTarget.dataset.messageIndex
+    const images = this.data.messages[messageIndex].images
+    wx.previewImage({ current: images[0], urls: images })
   },
 
   // 格式化日期
@@ -183,16 +147,10 @@ Page({
     const hour = 60 * minute
     const day = 24 * hour
 
-    if (diff < minute) {
-      return '刚刚'
-    } else if (diff < hour) {
-      return Math.floor(diff / minute) + '分钟前'
-    } else if (diff < day) {
-      return Math.floor(diff / hour) + '小时前'
-    } else if (diff < 7 * day) {
-      return Math.floor(diff / day) + '天前'
-    } else {
-      return `${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-    }
+    if (diff < minute) return '刚刚'
+    else if (diff < hour) return Math.floor(diff / minute) + '分钟前'
+    else if (diff < day) return Math.floor(diff / hour) + '小时前'
+    else if (diff < 7 * day) return Math.floor(diff / day) + '天前'
+    else return `${date.getMonth() + 1}/${date.getDate()}`
   }
 })

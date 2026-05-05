@@ -1,6 +1,6 @@
 <!--pages/note-detail/note-detail.wxml-->
 <view class="container">
-  <!-- 笔记内容 -->
+  <!-- 笔记内容（保留原有结构） -->
   <view class="note-card card">
     <view class="note-header">
       <image class="note-avatar" src="{{note.author.avatarUrl}}" mode="aspectFill"></image>
@@ -35,35 +35,59 @@
     </view>
   </view>
 
-  <!-- 留言区域 -->
+  <!-- 纸条留言区域 -->
   <view class="messages-section">
-    <view class="messages-title">💌 留言</view>
+    <view class="messages-title">💌 纸条</view>
 
     <view wx:if="{{messages.length === 0}}" class="empty-messages">
-      <view>暂无留言，快来抢沙发吧~</view>
+      <view class="empty-envelope">📬</view>
+      <view>暂无纸条，快来写第一张吧~</view>
     </view>
 
-    <view wx:for="{{messages}}" wx:key="_id" class="message-card card">
-      <view class="message-header">
-        <image class="message-avatar" src="{{item.author.avatarUrl}}" mode="aspectFill"></image>
-        <view class="message-info">
-          <view class="message-author">{{item.author.nickName}}</view>
-          <view class="message-time">{{item.createdAtStr}}</view>
+    <view wx:for="{{messages}}" wx:key="_id" class="message-wrapper">
+      <view
+        class="message-card {{openedMessages[index] ? 'opened' : 'closed'}}"
+        style="background: {{getPaperGradient(item.paperStyle)}}"
+        bindtap="toggleMessage"
+        data-index="{{index}}"
+      >
+        <!-- 信封/纸条内容 -->
+        <view class="message-content-wrapper">
+          <view wx:if="{{!openedMessages[index]}}" class="envelope-front">
+            <view class="envelope-icon">💌</view>
+            <view class="envelope-sender">{{item.author.nickName}}</view>
+            <view class="envelope-hint">点击打开</view>
+          </view>
+          <view wx:if="{{openedMessages[index]}}" class="message-inner">
+            <view class="message-header">
+              <image class="message-avatar" src="{{item.author.avatarUrl}}" mode="aspectFill"></image>
+              <view class="message-info">
+                <view class="message-author">{{item.author.nickName}}</view>
+                <view class="message-time">{{item.createdAtStr}}</view>
+              </view>
+            </view>
+            <view class="message-content">{{item.content}}</view>
+            <!-- 纸条图片 -->
+            <view wx:if="{{item.images && item.images.length > 0}}" class="message-images">
+              <image
+                wx:for="{{item.images}}"
+                wx:key="*this"
+                class="message-image"
+                src="{{item}}"
+                mode="aspectFill"
+                bindtap="previewMessageImage"
+                data-message-index="{{index}}"
+                data-image-index="{{index}}"
+              ></image>
+            </view>
+          </view>
         </view>
       </view>
-      <view class="message-content">{{item.content}}</view>
     </view>
   </view>
 
-  <!-- 留言输入框 -->
-  <view class="message-input-section">
-    <input
-      class="message-input"
-      placeholder="写留言..."
-      value="{{messageInput}}"
-      bindinput="onMessageInput"
-      bindconfirm="sendMessage"
-    />
-    <view class="send-btn" bindtap="sendMessage">发送</view>
+  <!-- 写纸条按钮 -->
+  <view class="write-message-fab" bindtap="goToWriteMessage">
+    <text>✍️</text>
   </view>
 </view>
