@@ -179,6 +179,31 @@ wx.cloud.callFunction({
 })
 ```
 
+## Task 3: 创建 messages 集合并设置权限（Phase 3）
+
+### Step 1: 确认 messages 集合存在
+在微信开发者工具云开发控制台：
+1. 点击"数据库"
+2. 确认 `messages` 集合已创建
+3. 如未创建，添加集合并设置权限
+
+### Step 2: 设置数据库权限
+在 `messages` 集合的"权限设置"中：
+```json
+{
+  "read": true,
+  "write": "auth.openid == doc._openid"
+}
+```
+
+**注意：** messages 集合需要支持以下字段：
+- `noteId`: 关联的笔记 ID
+- `authorId`: 作者 openid
+- `content`: 留言内容
+- `images`: 图片数组（云存储 fileID）
+- `paperStyle`: 信纸样式（default/love/star/blue/green/purple）
+- `createdAt`: 创建时间
+
 ## Task 6: 测试纸条模式
 
 ### Step 1: 编译并预览
@@ -197,6 +222,11 @@ wx.cloud.callFunction({
 1. 发送 6 张不同信纸的纸条
 2. 验证信纸样式正确显示
 
+### Step 4: 验证图片功能
+1. 写纸条时上传图片（最多 3 张）
+2. 验证图片正确显示在纸条中
+3. 点击图片验证预览功能
+
 ---
 
 ## Phase 3 验收标准
@@ -206,3 +236,5 @@ wx.cloud.callFunction({
 - [ ] 写纸条时可以选择信纸样式（6 种）
 - [ ] 不同信纸样式正确显示不同渐变背景
 - [ ] 纸条模式体验流畅
+- [ ] 支持上传图片（最多 3 张）
+- [ ] 纸条图片可点击预览
