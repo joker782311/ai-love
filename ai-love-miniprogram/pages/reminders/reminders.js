@@ -33,6 +33,23 @@ Page({
     const currentIdentity = app.globalData.userInfo?.identity
     console.log('当前用户身份:', currentIdentity)
 
+    // 如果当前用户没有身份，提示重新登录
+    if (!currentIdentity) {
+      console.warn('当前用户没有身份，请重新登录')
+      wx.showModal({
+        title: '提示',
+        content: '请先重新登录选择身份',
+        success: res => {
+          if (res.confirm) {
+            wx.reLaunch({
+              url: '/pages/login/login'
+            })
+          }
+        }
+      })
+      return
+    }
+
     // 根据当前用户身份，确定接收人
     // 如果当前是妮妮，接收人就是蛋蛋；反之亦然
     const targetIdentity = currentIdentity === 'nini' ? 'dandan' : 'nini'
@@ -58,9 +75,10 @@ Page({
         console.log('接收人:', targetUser.nickName, targetUser._openid)
       } else {
         console.warn('未找到对方用户，请确保数据库中有两个用户记录')
-        wx.showToast({
-          title: '对方未登录',
-          icon: 'none'
+        wx.showModal({
+          title: '提示',
+          content: '对方还未登录，请先发送消息让对方登录',
+          showCancel: false
         })
       }
     } catch (err) {
