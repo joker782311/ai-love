@@ -1,0 +1,57 @@
+<!--pages/create-note/create-note.wxml-->
+<view class="container">
+  <!-- 分类选择 -->
+  <view class="category-section card">
+    <view class="category-label">选择分类</view>
+    <view class="category-options">
+      <view
+        class="category-option {{category === 'idea' ? 'active' : ''}}"
+        bindtap="selectCategory"
+        data-category="idea"
+      >💡 想法</view>
+      <view
+        class="category-option {{category === 'thought' ? 'active' : ''}}"
+        bindtap="selectCategory"
+        data-category="thought"
+      >💭 心情</view>
+      <view
+        class="category-option {{category === 'memory' ? 'active' : ''}}"
+        bindtap="selectCategory"
+        data-category="memory"
+      >📸 回忆</view>
+    </view>
+  </view>
+
+  <!-- 内容输入 -->
+  <view class="content-section card">
+    <textarea
+      class="content-textarea"
+      placeholder="记录这一刻..."
+      value="{{content}}"
+      bindinput="onContentInput"
+      maxlength="1000"
+      auto-height
+    />
+  </view>
+
+  <!-- 图片上传 -->
+  <view class="image-section card">
+    <view class="image-label">添加图片</view>
+    <view class="image-list">
+      <view wx:for="{{images}}" wx:key="*this" class="image-item">
+        <image class="image-preview" src="{{item}}" mode="aspectFill"></image>
+        <view class="image-delete" bindtap="deleteImage" data-index="{{index}}">×</view>
+      </view>
+      <view wx:if="{{images.length < 9}}" class="image-add" bindtap="chooseImage">
+        <text>+</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="submitNote" loading="{{submitting}}">
+      {{isEdit ? '保存修改' : '发表笔记'}}
+    </button>
+  </view>
+</view>
