@@ -33,6 +33,12 @@ exports.main = async (event, context) => {
     // 如果是立即发送且不禁用推送，调用发送接口
     if (type === 'manual' && !skipPush) {
       try {
+        console.log('准备发送消息:', {
+          touser: receiverId,
+          templateId: templateId,
+          content: content
+        })
+
         await cloud.openapi.subscribeMessage.send({
           touser: receiverId,
           templateId: templateId,
@@ -41,6 +47,8 @@ exports.main = async (event, context) => {
             time2: { value: new Date().toLocaleString('zh-CN') }
           }
         })
+
+        console.log('消息发送成功')
 
         // 更新状态为已发送
         await db.collection('reminders').doc(reminder._id).update({
