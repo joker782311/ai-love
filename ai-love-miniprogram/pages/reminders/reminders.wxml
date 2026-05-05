@@ -49,7 +49,7 @@
       <view
         class="schedule-option {{isScheduled ? 'active' : ''}}"
         bindtap="toggleSchedule"
-        data-scheduled="true"
+        data-scheduled="{{true}}"
       >
         定时发送
       </view>

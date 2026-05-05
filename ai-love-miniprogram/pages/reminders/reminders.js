@@ -85,7 +85,10 @@ Page({
 
   // 切换定时
   toggleSchedule(e) {
-    const isScheduled = e.currentTarget.dataset.scheduled
+    const scheduledValue = e.currentTarget.dataset.scheduled
+    // 将字符串转换为布尔值
+    const isScheduled = scheduledValue === 'true'
+    console.log('切换定时状态:', scheduledValue, '=>', isScheduled)
     this.setData({
       isScheduled: isScheduled
     })
