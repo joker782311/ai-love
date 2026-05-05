@@ -38,8 +38,9 @@ exports.main = async (event, context) => {
           touser: task.receiverId,
           templateId: templateId,
           data: {
-            thing1: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
-            time2: { value: new Date().toLocaleString('zh-CN') }
+            thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
+            time3: { value: new Date().toLocaleString('zh-CN') },
+            date4: { value: task.scheduledTime || '定时提醒' }
           }
         })
 

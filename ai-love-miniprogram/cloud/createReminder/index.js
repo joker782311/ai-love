@@ -43,8 +43,9 @@ exports.main = async (event, context) => {
           touser: receiverId,
           templateId: templateId,
           data: {
-            thing1: { value: content.length > 20 ? content.substring(0, 20) + '...' : content },
-            time2: { value: new Date().toLocaleString('zh-CN') }
+            thing2: { value: content.length > 20 ? content.substring(0, 20) + '...' : content },
+            time3: { value: new Date().toLocaleString('zh-CN') },
+            date4: { value: scheduledTime || '立即' }
           }
         })
 
