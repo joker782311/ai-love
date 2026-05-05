@@ -36,6 +36,8 @@ exports.main = async (event, context) => {
         // 格式化时间为微信要求的格式：YYYY-MM-DD HH:mm
         const now = new Date()
         const timeStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+        // date4 需要是日期格式：YYYY 年 MM 月 DD 日
+        const dateStr = `${now.getFullYear()}年${String(now.getMonth() + 1).padStart(2, '0')}月${String(now.getDate()).padStart(2, '0')}日`
 
         // 发送订阅消息
         await cloud.openapi.subscribeMessage.send({
@@ -44,7 +46,7 @@ exports.main = async (event, context) => {
           data: {
             thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
             time3: { value: timeStr },
-            date4: { value: task.scheduledTime || '定时提醒' }
+            date4: { value: dateStr }
           }
         })
 
