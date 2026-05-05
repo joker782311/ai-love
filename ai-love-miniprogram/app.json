@@ -5,7 +5,8 @@
     "pages/note-detail/note-detail",
     "pages/create-note/create-note",
     "pages/write-message/write-message",
-    "pages/reminders/reminders"
+    "pages/reminders/reminders",
+    "pages/teochew-learn/teochew-learn"
   ],
   "window": {
     "backgroundColor": "#FFF3E0",
