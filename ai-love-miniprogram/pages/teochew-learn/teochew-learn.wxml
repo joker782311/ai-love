@@ -1,0 +1,98 @@
+<!--pages/teochew-learn/teochew-learn.wxml-->
+<view class="container">
+  <!-- 欢迎语 -->
+  <view class="welcome-section card">
+    <view class="welcome-title">📖 潮汕话学习</view>
+    <view class="welcome-subtitle">学几句潮汕话，说给妮妮听</view>
+  </view>
+
+  <!-- 分类 Tab -->
+  <view class="tab-section">
+    <view class="tab-list">
+      <view
+        class="tab-item {{currentTab === 'greeting' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="greeting"
+      >问候语</view>
+      <view
+        class="tab-item {{currentTab === 'daily' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="daily"
+      >日常用语</view>
+      <view
+        class="tab-item {{currentTab === 'love' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="love"
+      >情话</view>
+    </view>
+  </view>
+
+  <!-- 内容列表 -->
+  <view class="content-section">
+    <view wx:if="{{currentTab === 'greeting'}}">
+      <view wx:for="{{greetings}}" wx:key="key" class="phrase-card card">
+        <view class="phrase-header">
+          <view class="phrase-key">{{item.key}}</view>
+        </view>
+        <view class="phrase-content">
+          <view class="phrase-row">
+            <view class="phrase-label">普通话</view>
+            <view class="phrase-text">{{item.zh}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">潮汕话</view>
+            <view class="phrase-text teochew">{{item.teochew}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">拼音</view>
+            <view class="phrase-text pinyin">{{item.pinyin}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{currentTab === 'daily'}}">
+      <view wx:for="{{daily}}" wx:key="key" class="phrase-card card">
+        <view class="phrase-header">
+          <view class="phrase-key">{{item.key}}</view>
+        </view>
+        <view class="phrase-content">
+          <view class="phrase-row">
+            <view class="phrase-label">普通话</view>
+            <view class="phrase-text">{{item.zh}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">潮汕话</view>
+            <view class="phrase-text teochew">{{item.teochew}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">拼音</view>
+            <view class="phrase-text pinyin">{{item.pinyin}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{currentTab === 'love'}}">
+      <view wx:for="{{love}}" wx:key="key" class="phrase-card card">
+        <view class="phrase-header">
+          <view class="phrase-key">{{item.key}}</view>
+        </view>
+        <view class="phrase-content">
+          <view class="phrase-row">
+            <view class="phrase-label">普通话</view>
+            <view class="phrase-text">{{item.zh}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">潮汕话</view>
+            <view class="phrase-text teochew">{{item.teochew}}</view>
+          </view>
+          <view class="phrase-row">
+            <view class="phrase-label">拼音</view>
+            <view class="phrase-text pinyin">{{item.pinyin}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
