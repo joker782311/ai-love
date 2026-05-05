@@ -44,10 +44,18 @@ exports.main = async (event, context) => {
       userMap[user._openid] = user
     })
 
-    // 合并作者信息
-    const notes = notesResult.data.map(note => ({
-      ...note,
-      author: userMap[note.authorId] || { nickName: '未知用户', avatarUrl: '' }
+    // 合并作者信息和评论数
+    const notes = await Promise.all(notesResult.data.map(async (note) => {
+      // 统计评论数
+      const messageCount = await db.collection('messages')
+        .where({ noteId: note._id })
+        .count()
+
+      return {
+        ...note,
+        author: userMap[note.authorId] || { nickName: '未知用户', avatarUrl: '' },
+        messageCount: messageCount.total
+      }
     }))
 
     return {
