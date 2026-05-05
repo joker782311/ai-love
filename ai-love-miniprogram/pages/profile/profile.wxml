@@ -1,0 +1,41 @@
+<!--pages/profile/profile.wxml-->
+<view class="container">
+  <!-- 用户信息卡片 -->
+  <view class="profile-card card">
+    <view class="avatar-section">
+      <image class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view class="nickname">{{nickName}}</view>
+    </view>
+
+    <view class="info-list">
+      <view class="info-item">
+        <view class="info-label">OpenID</view>
+        <view class="info-value">{{openid}}</view>
+      </view>
+      <view class="info-item">
+        <view class="info-label">语言</view>
+        <view class="info-value">{{languageText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 设置选项 -->
+  <view class="settings-section">
+    <view class="setting-item card" bindtap="toggleLanguage">
+      <view class="setting-label">切换语言</view>
+      <view class="setting-value">{{languageText}} ▶</view>
+    </view>
+
+    <view class="setting-item card" bindtap="copyOpenid">
+      <view class="setting-label">复制 OpenID</view>
+      <view class="setting-value">点击复制 ▶</view>
+    </view>
+  </view>
+
+  <!-- 关于 -->
+  <view class="about-section card">
+    <view class="about-title">关于</view>
+    <view class="about-version">Version 0.1.0 (Phase 1)</view>
+    <view class="about-desc">妮妮的恋爱小馆 · 开发中</view>
+  </view>
+</view>
