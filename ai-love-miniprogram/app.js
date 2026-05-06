@@ -19,6 +19,11 @@ App({
     this.checkScheduledReminders()
   },
 
+  onShow: function () {
+    // 每次进入小程序都检查并发送到期的定时提醒
+    this.checkScheduledReminders()
+  },
+
   // 检查登录状态
   checkLogin() {
     return new Promise((resolve, reject) => {
