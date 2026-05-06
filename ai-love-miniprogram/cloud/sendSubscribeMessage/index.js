@@ -6,7 +6,7 @@ cloud.init({
 })
 
 exports.main = async (event, context) => {
-  const { touser, templateId, page, data } = event
+  const { touser, templateId, page, data, miniprogramState } = event
 
   try {
     console.log('发送订阅消息:', { touser, templateId, page })
@@ -14,9 +14,12 @@ exports.main = async (event, context) => {
     await cloud.openapi.subscribeMessage.send({
       touser: touser,
       templateId: templateId,
-      miniprogramState: 'formal',
+      miniprogramState: miniprogramState || 'formal',
       page: page,
       data: data
+    }, {
+      // 使用统一消息推送的凭证
+      $url: 'tcb'
     })
 
     console.log('订阅消息发送成功')

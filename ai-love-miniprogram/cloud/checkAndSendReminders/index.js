@@ -6,6 +6,7 @@ cloud.init({
 })
 
 const db = cloud.database()
+const command = db.command
 const wxContext = cloud.getWXContext()
 const { OPENID } = wxContext
 
@@ -20,12 +21,11 @@ exports.main = async (event, context) => {
 
     console.log('检查定时提醒，当前北京时间:', currentTime, 'OPENID:', OPENID)
 
-    // 查询当前用户的待发送定时提醒
+    // 查询所有已到期（scheduledTime <= currentTime）的待发送定时提醒
     const tasks = await db.collection('scheduledTasks')
       .where({
         status: 'pending',
-        scheduledTime: currentTime,
-        receiverId: OPENID
+        scheduledTime: command.lte(currentTime)
       })
       .get()
 
@@ -35,9 +35,9 @@ exports.main = async (event, context) => {
 
     for (const task of tasks.data) {
       try {
-        // 发送订阅消息
+        // 发送订阅消息给接收者
         await cloud.openapi.subscribeMessage.send({
-          touser: OPENID,
+          touser: task.receiverId,
           templateId: 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI',
           miniprogramState: 'formal',
           page: 'pages/reminders/reminders',
@@ -48,7 +48,7 @@ exports.main = async (event, context) => {
           }
         })
 
-        console.log('消息发送成功:', task._id)
+        console.log('消息发送成功:', task._id, '接收者:', task.receiverId)
 
         // 更新提醒状态
         if (task.reminderId) {
@@ -60,11 +60,12 @@ exports.main = async (event, context) => {
           })
         }
 
-        // 更新任务状态
+        // 更新任务状态（标记为已完成，防止重复发送）
         await db.collection('scheduledTasks').doc(task._id).update({
           data: {
             status: 'completed',
-            completedAt: db.serverDate()
+            completedAt: db.serverDate(),
+            sentBy: OPENID // 记录是谁打开小程序触发的发送
           }
         })
 

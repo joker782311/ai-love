@@ -1,4 +1,6 @@
 // cloud/scheduledReminder/index.js
+// 定时检查器：仅检查待发送任务，不实际发送
+// 实际发送由用户打开小程序时通过 checkAndSendReminders 完成
 const cloud = require('wx-server-sdk')
 
 cloud.init({
@@ -8,6 +10,7 @@ cloud.init({
 const db = cloud.database()
 
 // 云函数入口 - 由云开发定时任务触发
+// 仅用于记录日志，实际发送由 checkAndSendReminders 处理
 exports.main = async (event, context) => {
   try {
     // 获取当前时间（转换为北京时间 UTC+8）
@@ -17,9 +20,9 @@ exports.main = async (event, context) => {
     const currentMinute = String(beijingTime.getMinutes()).padStart(2, '0')
     const currentTime = `${currentHour}:${currentMinute}`
 
-    console.log('定时任务触发，当前北京时间:', currentTime)
+    console.log('定时检查器触发，当前北京时间:', currentTime)
 
-    // 查询所有待发送的定时提醒
+    // 查询所有待发送的定时提醒（仅记录，不发送）
     const tasks = await db.collection('scheduledTasks')
       .where({
         status: 'pending',
@@ -28,60 +31,18 @@ exports.main = async (event, context) => {
       .get()
 
     console.log('待发送任务数量:', tasks.data.length)
-
-    const results = []
-
-    for (const task of tasks.data) {
-      try {
-        // 使用云函数方式发送订阅消息（支持统一消息推送）
-        await cloud.callFunction({
-          name: 'sendSubscribeMessage',
-          data: {
-            touser: task.receiverId,
-            templateId: 'EC0i9nFMk7d4VSnWbHdtejQN8oVkDqSjNDowcIAy8dI',
-            page: 'pages/reminders/reminders',
-            data: {
-              thing2: { value: task.content.length > 20 ? task.content.substring(0, 20) + '...' : task.content },
-              time3: { value: `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')} ${currentTime}` },
-              date4: { value: `${beijingTime.getFullYear()}年${String(beijingTime.getMonth() + 1).padStart(2, '0')}月${String(beijingTime.getDate()).padStart(2, '0')}日` }
-            }
-          }
-        })
-
-        console.log('消息发送成功:', task._id)
-
-        // 更新提醒状态
-        if (task.reminderId) {
-          await db.collection('reminders').doc(task.reminderId).update({
-            data: {
-              isSent: true,
-              sentAt: db.serverDate()
-            }
-          })
-        }
-
-        // 更新任务状态
-        await db.collection('scheduledTasks').doc(task._id).update({
-          data: {
-            status: 'completed',
-            completedAt: db.serverDate()
-          }
-        })
-
-        results.push({ taskId: task._id, success: true })
-      } catch (sendErr) {
-        console.error('发送失败:', sendErr, 'taskId:', task._id)
-        results.push({ taskId: task._id, success: false, error: sendErr.message })
-      }
+    if (tasks.data.length > 0) {
+      console.log('待发送任务 ID:', tasks.data.map(t => t._id))
+      console.log('这些任务将在用户打开小程序时通过 checkAndSendReminders 发送')
     }
 
     return {
       success: true,
       total: tasks.data.length,
-      results: results
+      message: '检查完成，待发送任务将在用户打开小程序时处理'
     }
   } catch (err) {
-    console.error('定时任务执行失败:', err)
+    console.error('定时检查器执行失败:', err)
     return {
       success: false,
       error: err.message
