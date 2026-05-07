@@ -12,7 +12,31 @@ Page({
   },
 
   onLoad: function () {
+    this.getLocation()
     this.loadNotes()
+  },
+
+  // 获取定位并保存到数据库
+  getLocation() {
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => {
+        const appInstance = getApp()
+        const nickName = (appInstance.globalData.userInfo && appInstance.globalData.userInfo.nickName) || '未知'
+
+        wx.cloud.callFunction({
+          name: 'saveLocation',
+          data: {
+            nickName: nickName,
+            location: {
+              latitude: res.latitude,
+              longitude: res.longitude,
+              accuracy: res.accuracy
+            }
+          }
+        })
+      }
+    })
   },
 
   onShow: function () {
